@@ -18,7 +18,7 @@ import './controllers/SlidesController';
 
 // console.log('loading main.js');
 
-var computeMaxDimensions = (canvas) => {
+export var computeMaxDimensions = (canvas) => {
     var slideList = $('#slide-list');
 
     if (slideList.length > 0) {
@@ -43,7 +43,7 @@ var computeMaxDimensions = (canvas) => {
     }
 };
 
-var resizeCanvas = () => {
+export var resizeCanvas = () => {
     var mainCanvas = $('#main-canvas');
     var dimensions = computeMaxDimensions(mainCanvas);
 
@@ -51,7 +51,7 @@ var resizeCanvas = () => {
     // the jQuery height and with leads to a CSS transform of the canvas in its
     // original size.  Maybe combine these two things to achieve scaling to
     // the screen proportions.
-    // console.log('canvas dimensions', dimensions.height, dimensions.width);
+    // console.log('resizing canvas', dimensions.height, dimensions.width);
     var canvasDom = mainCanvas.get(0);
     canvasDom.height = dimensions.height;
     canvasDom.width = dimensions.width;
@@ -68,7 +68,6 @@ export var start = () => {
 //        scope.resizeCanvas = resizeCanvas;
 
         resizeCanvas();
-        setTimeout(resizeCanvas);
     });
 };
 

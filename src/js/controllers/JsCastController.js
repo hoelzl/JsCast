@@ -2,8 +2,10 @@
  * Created by tc on 3/Mar/2014.
  */
 
-import {app} from '../app';
 import '../config';
+import {app} from '../app';
+module _ from '../../vendor/lodash/dist/lodash';
+import Slide from '../model/Slide';
 
 // console.log('loading JsCastController');
 
@@ -13,9 +15,26 @@ function getMainCanvas() {
 
 export var controller = app.controller('JsCastController', ['$scope', 'config',
     ($scope, config) => {
-        var currentSlideCounter = 3;
 
         $scope.appName = config.appName;
+
+        $scope.slides = [
+            new Slide('Slide 1', 'Some text for slide 1'),
+            new Slide('Slide 2', 'A different text\nfor slide 2\nAs you can see!')
+        ];
+
+        $scope.current = {
+            slideCounter: 3,
+            _slide: $scope.slides[0],
+            get slide() {
+                return this._slide;
+            },
+            set slide(newSlide) {
+                this._slide = newSlide;
+                // console.log('dirtying slide', newSlide.id);
+                newSlide.dirty();
+            }
+        };
 
         $scope.inspector = {
             visible: true
@@ -25,33 +44,17 @@ export var controller = app.controller('JsCastController', ['$scope', 'config',
             visible: true
         };
 
-        $scope.toggle = (thing) => {
-            thing.visible = !thing.visible;
+        $scope.dirty = () => {
+            $scope.current.slide.dirty();
         };
 
-        $scope.slides = [
-            { id: 1, thumbnail: '[thumbnail 1]',
-                title: 'Slide 1', contents: { text: 'Some text' }},
-            {id: 2, thumbnail: '[thumbnail 2]',
-                title: 'Slide 2', contents: { text: 'Another text' }}
-        ];
-
-        $scope._currentSlide = [null];
-
-        Object.defineProperty($scope, 'currentSlide', {
-            get: () => $scope._currentSlide[0],
-            set: (slide) => {
-                $scope._currentSlide[0] = slide;
-                $scope.drawContents();
-            }
-        });
-
-        $scope.setCurrentSlide = (slide) => {
-            $scope.currentSlide = slide;
+        $scope.toggle = (thing) => {
+            thing.visible = !thing.visible;
+            $scope.dirty();
         };
 
         $scope.newSlide = () => {
-            var slideId = currentSlideCounter++;
+            var slideId = $scope.current.slideCounter++;
             var newSlide = {
                 id: slideId,
                 thumbnail: '[thumbnail ' + slideId + ']',
@@ -59,7 +62,7 @@ export var controller = app.controller('JsCastController', ['$scope', 'config',
                 contents: { text: (Math.random() * 0xffffffffff).toString(36) }
             };
             $scope.slides.push(newSlide);
-            $scope.currentSlide = newSlide;
+            $scope.current.slide = newSlide;
         };
 
         $scope.findSlideIndex = (slide) => {
@@ -74,65 +77,69 @@ export var controller = app.controller('JsCastController', ['$scope', 'config',
                 } else {
                     slides.push(newSlide);
                 }
-                $scope.currentSlide = newSlide;
+                $scope.current.slide = newSlide;
             } else {
                 throw(Error("Trying to insert null as slide."));
             }
         };
 
         $scope.duplicateSlide = () => {
-            var originalSlide = $scope.currentSlide;
-            var newSlideId = currentSlideCounter++;
+            var originalSlide = $scope.current.slide;
             var newSlide;
             if (originalSlide) {
-                newSlide = {
-                    id: newSlideId,
-                    thumbnail: originalSlide.thumbnail,
-                    title: 'Slide ' + newSlideId + ' (-> ' + originalSlide.id + ')',
-                    contents: originalSlide.contents
-                };
+                newSlide = new Slide(
+                    'Duplicate of ' + originalSlide.title,
+                    originalSlide.text,
+                    originalSlide.thumbnail);
             } else {
-                newSlide = {
-                    id: newSlideId,
-                    thumbnail: '[thumbnail ' + newSlideId + ']',
-                    title: 'Slide ' + newSlideId + ' (not cloned)',
-                    contents: 'Missing Contents'
-                };
+                newSlide = new Slide('Failed duplicate attempt');
             }
             $scope.insertAfterSlide(originalSlide, newSlide);
         };
 
         $scope.deleteSlide = () => {
-            var slideIndex = $scope.findSlideIndex($scope.currentSlide);
+            var slideIndex = $scope.findSlideIndex($scope.current.slide);
             var slides = $scope.slides;
             slides.splice(slideIndex, 1);
             if (slideIndex >= slides.length) {
                 if (slides.length > 0) {
-                    $scope.currentSlide = slides[slides.length - 1];
+                    $scope.current.slide = slides[slides.length - 1];
                 } else {
-                    $scope.currentSlide = null;
+                    $scope.current.slide = null;
                 }
             } else {
-                $scope.currentSlide = slides[slideIndex];
+                $scope.current.slide = slides[slideIndex];
             }
+            $scope.dirty();
         };
 
         $scope.drawContents = () => {
-            // console.log('drawing contents');
-            var slide = $scope.currentSlide;
+            // console.log('drawContents called');
+            var slide = $scope.current.slide;
             var canvas = getMainCanvas();
             // Clear the canvas
             //noinspection SillyAssignmentJS
             canvas.width = canvas.width;
             if (slide) {
-                var text = slide.contents.text;
+                var text = slide.text;
                 if (text) {
+                    // console.log('drawing text');
+                    var lines = text.split('\n');
+                    var y = 100;
                     var context = canvas.getContext('2d');
                     context.font = 'italic 40pt Calibri';
-                    context.fillText(slide.contents.text, 150, 100);
+                    for (var line of lines) {
+                        context.fillText(line, 50, y);
+                        y += 60;
+                    }
                 }
             }
         };
+
+        $scope.$watch('current.slide.dirtyTick', () => {
+            // console.log('dirty watch');
+            setTimeout($scope.drawContents)
+        });
 
     }]);
 

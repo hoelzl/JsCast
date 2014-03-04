@@ -34,8 +34,8 @@
     <ul class="list-group">
         <li class="list-group-item text-center"
             data-ng-repeat="slide in slides"
-            data-ng-click="currentSlide = slide"
-            data-ng-class="currentSlide.id == slide.id && 'text-primary'">
+            data-ng-click="current.slide = slide"
+            data-ng-class="current.slide.id == slide.id && 'text-primary'">
             {{slide.thumbnail}}<br>
             <span>{{slide.title}}</span>
         </li>
@@ -55,16 +55,17 @@
     </div>
     <div class="row">
         <span class="col-md-4">Slide Id:</span>
-        <input class="col-md-8" type="number" ng-model="currentSlide.id">
+        <input class="col-md-8" type="number" ng-model="current.slide.id">
     </div>
     <div class="row">
         <span class="col-md-4">Title:</span>
-        <input class="col-md-8" type="text" ng-model="currentSlide.title"><br>
+        <input class="col-md-8" type="text" ng-model="current.slide.title"><br>
     </div>
     <div class="row">
         <span class="col-md-4">Text:</span>
-        <input class="col-md-8" type="text"
-               ng-model="currentSlide.contents.text">
+        <textarea class="col-md-8"
+                  rows="5"
+                  ng-model="current.slide.text"></textarea>
     </div>
 </div>
 <script src="vendor/requirejs/require.js"></script>
