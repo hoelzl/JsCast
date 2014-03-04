@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JsCast</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet"
+          href="vendor/bootstrap/dist/css/bootstrap.css">
+</head>
+<body class="hidden" ng-controller="JsCastController">
+<div ng-controller="NavbarController"
+     class="navbar navbar-inverse"
+     role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">{{appName}}</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li><a data-ng-click="newSlide()">New Slide</a></li>
+            <li><a data-ng-click="duplicateSlide()">Duplicate Slide</a></li>
+            <li><a data-ng-click="deleteSlide()">Delete Slide</a></li>
+            <li><a data-ng-click="toggle(slideList)">Toggle SlideList</a></li>
+            <li><a data-ng-click="toggle(inspector)">Toggle Inspector</a></li>
+        </ul>
+        <!--/.nav-collapse -->
+    </div>
+</div>
+
+<div id="slide-list" class="container"
+     ng-if="slideList.visible"
+     style="width: 200px; float: left; margin: 5px"
+     ng-controller="SlidesController">
+    <ul class="list-group">
+        <li class="list-group-item text-center"
+            data-ng-repeat="slide in slides"
+            data-ng-click="currentSlide = slide"
+            data-ng-class="currentSlide.id == slide.id && 'text-primary'">
+            {{slide.thumbnail}}<br>
+            <span>{{slide.title}}</span>
+        </li>
+    </ul>
+</div>
+<div style="float:left; margin: 5px 0">
+    <canvas id="main-canvas"
+            style="background-color: lightgray"></canvas>
+</div>
+<div id="inspector"
+     ng-if="inspector.visible"
+     class="container"
+     style="width: 280px; float: left; margin: 5px 5px 5px 10px"
+     ng-controller="InspectorController">
+    <div class="row">
+        <b class="col-md-12">Inspector {{inspectorCollapsed}}</b><br><br>
+    </div>
+    <div class="row">
+        <span class="col-md-4">Slide Id:</span>
+        <input class="col-md-8" type="number" ng-model="currentSlide.id">
+    </div>
+    <div class="row">
+        <span class="col-md-4">Title:</span>
+        <input class="col-md-8" type="text" ng-model="currentSlide.title"><br>
+    </div>
+    <div class="row">
+        <span class="col-md-4">Text:</span>
+        <input class="col-md-8" type="text"
+               ng-model="currentSlide.contents.text">
+    </div>
+</div>
+<script src="vendor/requirejs/require.js"></script>
+<script>
+    requirejs.config({
+
+        baseUrl: '/',
+
+        paths: {
+
+            'domReady': './vendor/requirejs-domready/domReady',
+            'jquery': './vendor/jquery/dist/jquery',
+            'underscore': './vendor/underscore/underscore',
+
+            'angular': './vendor/angular/angular',
+            'angularRoute': './vendor/angular-route/angular-route',
+            'ui.bootstrap': './vendor/angular-bootstrap/ui-bootstrap',
+
+            'NavbarController': './js/controllers/NavbarController',
+            'SlidesController': './js/controllers/SlidesController',
+            'JsCastController': './js/controllers/JsCastController',
+            'PageController': './js/controllers/InspectorController',
+
+            'app': './js/app',
+            'config': './js/config',
+            'routes': './js/routes',
+            'controllers': './js/controllers'
+        },
+
+        shim: {
+            'jquery': {
+                exports: 'jQuery'
+            },
+            'angular': {
+                deps: [ 'jquery' ],
+                exports: 'angular'
+            },
+            'angular-route': {
+                deps: [ 'angular' ]
+            },
+            'ui-bootstrap': {
+                deps: [ 'jquery', 'angular' ]
+            }
+        }
+    });
+    require(['js/main'], function (main) {
+        main.start();
+    });
+</script>
+</body>
+</html>
