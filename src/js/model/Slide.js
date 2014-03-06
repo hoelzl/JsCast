@@ -12,7 +12,7 @@ export class Slide {
         this._text = text;
         this.thumbnail = thumbnail;
         this.id = currentId++;
-        this.dirtyTick = 0;
+        this.dirtyTick = Math.random();
     }
 
     dirty () {
