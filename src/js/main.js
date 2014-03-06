@@ -52,9 +52,9 @@ export var start = () => {
         document.defaultView.addEventListener('resize', resizeCanvas);
 
         $('body').removeClass('hidden');
-        var scope = angular.$rootScope;
-//        scope.computeMaxDimensions = computeMaxDimensions;
-//        scope.resizeCanvas = resizeCanvas;
+        // var scope = angular.$rootScope;
+        // scope.computeMaxDimensions = computeMaxDimensions;
+        // scope.resizeCanvas = resizeCanvas;
 
         resizeCanvas();
     });

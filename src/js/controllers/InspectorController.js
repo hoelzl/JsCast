@@ -3,7 +3,7 @@ import 'config';
 
 // console.log('loading InspectorController');
 export var controller = app.controller('InspectorController',
-                                ['$scope', 'config', function () {
-}]);
+                                       ['$scope', 'config', function () {
+                                       }]);
 
 export default controller;
