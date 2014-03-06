@@ -44,6 +44,11 @@ export var resizeCanvas = () => {
    var canvasDom = mainCanvas.get(0);
    canvasDom.height = dimensions.height;
    canvasDom.width = dimensions.width;
+   // And adjust the inspector and slide list as well.  But use the CSS height here.
+   // TODO: This needs to be integrated with data binding so that toggling the
+   //       list does not remove the overflow.
+   $('#slide-list').height(dimensions.height);
+   $('#inspector').height(dimensions.height);
 };
 
 export var start = () => {

@@ -11,6 +11,7 @@ var paths = {
    'angular':      'vendor/angular/angular',
    'angularRoute': 'vendor/angular-route/angular-route',
    'ui.bootstrap': 'vendor/angular-bootstrap/ui-bootstrap',
+   'ui.utils':     'vendor/angular-ui-utils/ui-utils',
 
    'NavbarController':    'js/controllers/NavbarController',
    'SlidesController':    'js/controllers/SlidesController',
@@ -44,6 +45,9 @@ var requirejsConfig = {
       },
       'ui.bootstrap': {
          deps: [ 'jquery', 'angular' ]
+      },
+      'ui.utils':     {
+         deps: [ 'angular']
       }
    }
 };
@@ -56,8 +60,8 @@ require(['traceurRuntime'], function () {
    }
 
    var modules = ['main', 'domReady', 'jquery', 'lodash', 'angular',
-                  'angularRoute', 'ui.bootstrap', 'NavbarController',
-                  'SlidesController', 'JsCastController',
+                  'angularRoute', 'ui.bootstrap', 'ui.utils',
+                  'NavbarController', 'SlidesController', 'JsCastController',
                   'InspectorController'];
    for (var i = 0; i < modules.length; i++) {
       registerModule(modules[i]);
