@@ -7,9 +7,11 @@ import 'config';
 
 // console.log('loading NavbarController');
 
+function navbarController ($scope, config) {
+   $scope.appName = config.appName;
+}
+
 var controller = app.controller('NavbarController',
-                                ['$scope', 'config', function ($scope, config) {
-    $scope.appName = config.appName;
-}]);
+                                ['$scope', 'config', navbarController]);
 
 export default controller;

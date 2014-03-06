@@ -7,9 +7,11 @@ import 'config';
 
 // console.log('loading SlidesController');
 
-export var controller = app.controller('SlidesController', ['$scope', 'config',
-    function ($scope, config) {
-        $scope.appName = config.appName;
-    }]);
+function slidesController ($scope, config) {
+   $scope.appName = config.appName;
+}
+
+export var controller = app.controller('SlidesController',
+                                       ['$scope', 'config', slidesController]);
 
 export default controller;

@@ -17,6 +17,7 @@
         </option>
         <option name="LINE_SEPARATOR" value="&#10;" />
         <option name="RIGHT_MARGIN" value="80" />
+        <option name="FORMATTER_TAGS_ENABLED" value="true" />
         <JSCodeStyleSettings>
           <option name="ALIGN_OBJECT_PROPERTIES" value="1" />
         </JSCodeStyleSettings>
@@ -43,7 +44,9 @@
           <option name="WHILE_BRACE_FORCE" value="1" />
           <option name="FOR_BRACE_FORCE" value="1" />
           <indentOptions>
-            <option name="CONTINUATION_INDENT_SIZE" value="2" />
+            <option name="INDENT_SIZE" value="3" />
+            <option name="CONTINUATION_INDENT_SIZE" value="3" />
+            <option name="TAB_SIZE" value="3" />
           </indentOptions>
         </codeStyleSettings>
       </value>

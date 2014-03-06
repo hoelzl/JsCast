@@ -7,5 +7,5 @@
 import {app} from 'app';
 
 app.constant('config', {
-    appName: 'JsCast'
+   appName: 'JsCast'
 });

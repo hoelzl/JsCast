@@ -3,67 +3,67 @@
  */
 
 var paths = {
-    'domReady':       'vendor/requirejs-domready/domReady',
-    'jquery':         'vendor/jquery/dist/jquery',
-    'lodash':         'vendor/lodash/dist/lodash',
-    'traceurRuntime': 'vendor/traceur-runtime/traceur-runtime',
+   'domReady':       'vendor/requirejs-domready/domReady',
+   'jquery':         'vendor/jquery/dist/jquery',
+   'lodash':         'vendor/lodash/dist/lodash',
+   'traceurRuntime': 'vendor/traceur-runtime/traceur-runtime',
 
-    'angular':      'vendor/angular/angular',
-    'angularRoute': 'vendor/angular-route/angular-route',
-    'ui.bootstrap': 'vendor/angular-bootstrap/ui-bootstrap',
+   'angular':      'vendor/angular/angular',
+   'angularRoute': 'vendor/angular-route/angular-route',
+   'ui.bootstrap': 'vendor/angular-bootstrap/ui-bootstrap',
 
-    'NavbarController':    'js/controllers/NavbarController',
-    'SlidesController':    'js/controllers/SlidesController',
-    'JsCastController':    'js/controllers/JsCastController',
-    'InspectorController': 'js/controllers/InspectorController',
+   'NavbarController':    'js/controllers/NavbarController',
+   'SlidesController':    'js/controllers/SlidesController',
+   'JsCastController':    'js/controllers/JsCastController',
+   'InspectorController': 'js/controllers/InspectorController',
 
-    'Slide': 'js/model/Slide',
+   'Slide': 'js/model/Slide',
 
-    'app':         'js/app',
-    'config':      'js/config',
-    'controllers': 'js/controllers',
-    'main':        'js/main',
-    'routes':      'js/routes'
+   'app':         'js/app',
+   'config':      'js/config',
+   'controllers': 'js/controllers',
+   'main':        'js/main',
+   'routes':      'js/routes'
 };
 
 // The configuration is kept in a variable because IntelliJ does a better job of
 // auto-indenting it this way.
 var requirejsConfig = {
-    baseUrl: '/',
-    paths:   paths,
-    shim:    {
-        'jquery':       {
-            exports: 'jQuery'
-        },
-        'angular':      {
-            deps:    [ 'jquery' ],
-            exports: 'angular'
-        },
-        'angularRoute': {
-            deps: [ 'angular' ]
-        },
-        'ui.bootstrap': {
-            deps: [ 'jquery', 'angular' ]
-        }
-    }
+   baseUrl: '/',
+   paths:   paths,
+   shim:    {
+      'jquery':       {
+         exports: 'jQuery'
+      },
+      'angular':      {
+         deps:    [ 'jquery' ],
+         exports: 'angular'
+      },
+      'angularRoute': {
+         deps: [ 'angular' ]
+      },
+      'ui.bootstrap': {
+         deps: [ 'jquery', 'angular' ]
+      }
+   }
 };
 
 requirejs.config(requirejsConfig);
 
 require(['traceurRuntime'], function () {
-    function registerModule (name) {
-        $traceurRuntime.ModuleStore.registerModule(name, paths[name]);
-    }
+   function registerModule (name) {
+      $traceurRuntime.ModuleStore.registerModule(name, paths[name]);
+   }
 
-    var modules = ['main', 'domReady', 'jquery', 'lodash', 'angular',
-                   'angularRoute', 'ui.bootstrap', 'NavbarController',
-                   'SlidesController', 'JsCastController',
-                   'InspectorController'];
-    for (var i = 0; i < modules.length; i++) {
-        registerModule(modules[i]);
-    }
+   var modules = ['main', 'domReady', 'jquery', 'lodash', 'angular',
+                  'angularRoute', 'ui.bootstrap', 'NavbarController',
+                  'SlidesController', 'JsCastController',
+                  'InspectorController'];
+   for (var i = 0; i < modules.length; i++) {
+      registerModule(modules[i]);
+   }
 
-    require(modules, function (main) {
-        main.start();
-    });
+   require(modules, function (main) {
+      main.start();
+   });
 });
