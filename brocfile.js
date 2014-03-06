@@ -2,7 +2,13 @@ module.exports = function (broccoli) {
     var pickFiles = require('broccoli-static-compiler');
     var traceur = require('broccoli-traceur');
     // var filterTemplates = require('broccoli-template');
-    
+
+    var js5 = broccoli.makeTree('src/js5');
+    js5 = pickFiles(js5, {
+        srcDir: '/',
+        destDir: 'js'
+    });
+
     var js = broccoli.makeTree('src/js');
     js = pickFiles(js, {
         srcDir: '/',
@@ -16,14 +22,13 @@ module.exports = function (broccoli) {
     vendor = pickFiles(vendor, {
         srcDir: '/',
         destDir: 'vendor'
-    })
+    });
 
     var templates = broccoli.makeTree('src/templates');
     templates = pickFiles(templates, {
         srcDir: '/',
         destDir: '' 
-    })
+    });
 
-    return [js, vendor, templates];
-}
-
+    return [js5, js, vendor, templates];
+};

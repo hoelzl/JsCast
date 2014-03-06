@@ -2,8 +2,8 @@
  * Created by tc on 2/Mar/2014.
  */
 
-import {app} from '../app';
-import '../config';
+import {app} from 'app';
+import 'config';
 
 // console.log('loading NavbarController');
 

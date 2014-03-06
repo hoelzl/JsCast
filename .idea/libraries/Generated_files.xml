@@ -6,9 +6,10 @@
         <item url="file://$PROJECT_DIR$/out/src/js/config.js" />
         <item url="file://$PROJECT_DIR$/out/src/js/start.js" />
         <item url="file://$PROJECT_DIR$/out/src/js/main.js" />
+        <item url="file://$PROJECT_DIR$/out/src/js/controllers/InspectorController.js" />
         <item url="file://$PROJECT_DIR$/out/src/js/controllers/SlidesController.js" />
-        <item url="file://$PROJECT_DIR$/out/src/js/controllers/NavbarController.js" />
         <item url="file://$PROJECT_DIR$/out/src/js/model/Slide.js" />
+        <item url="file://$PROJECT_DIR$/out/src/js/controllers/NavbarController.js" />
         <item url="file://$PROJECT_DIR$/out/src/js/controllers/JsCastController.js" />
         <item url="file://$PROJECT_DIR$/out/src/js/controllers/InspectorController.js" />
       </sourceFilesUrls>
@@ -18,9 +19,10 @@
       <root url="file://$PROJECT_DIR$/out/src/js/config.js" />
       <root url="file://$PROJECT_DIR$/out/src/js/start.js" />
       <root url="file://$PROJECT_DIR$/out/src/js/main.js" />
+      <root url="file://$PROJECT_DIR$/out/src/js/controllers/InspectorController.js" />
       <root url="file://$PROJECT_DIR$/out/src/js/controllers/SlidesController.js" />
-      <root url="file://$PROJECT_DIR$/out/src/js/model/Slide.js" />
       <root url="file://$PROJECT_DIR$/out/src/js/controllers/NavbarController.js" />
+      <root url="file://$PROJECT_DIR$/out/src/js/model/Slide.js" />
       <root url="file://$PROJECT_DIR$/out/src/js/controllers/JsCastController.js" />
       <root url="file://$PROJECT_DIR$/out/src/js/controllers/InspectorController.js" />
     </CLASSES>

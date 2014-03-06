@@ -2,9 +2,7 @@
  * Created by tc on 3/Mar/2014.
  */
 
-import '../vendor/angular/angular';
-import '../vendor/angular-route/angular-route';
-import '../vendor/angular-bootstrap/ui-bootstrap';
+module angular from 'angular';
 
 // console.log('loading app.js');
 

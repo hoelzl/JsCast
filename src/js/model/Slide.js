@@ -2,8 +2,6 @@
  * Created by tc on 4/Mar/2014.
  */
 
-import '../../vendor/traceur-runtime/traceur-runtime';
-
 var currentId = 1;
 
 export class Slide {

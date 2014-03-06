@@ -20,7 +20,6 @@
     "lodash": "^2.4.1",
     "requirejs": "^2.1.11",
     "requirejs-domready": "^2.0.1",
-    "systemjs": "*",
     "traceur-runtime": "^0.0.24"
   }
 }

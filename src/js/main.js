@@ -1,20 +1,9 @@
 /**
- * Created by tc on 3/Mar/2014.
- */
-
-/**
  * Created by tc on 4/Mar/2014.
  */
 
-module domReady from '../vendor/requirejs-domready/domReady';
-import '../vendor/jquery/dist/jquery';
-import '../vendor/angular/angular';
-import '../vendor/angular-bootstrap/ui-bootstrap';
-module app from './app';
-import './controllers/InspectorController';
-import './controllers/JsCastController';
-import './controllers/NavbarController';
-import './controllers/SlidesController';
+module domReady from 'domReady';
+module app from 'app';
 
 // console.log('loading main.js');
 

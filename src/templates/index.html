@@ -64,52 +64,6 @@
                   ng-model="current.slide.text"></textarea>
     </div>
 </div>
-<script src="vendor/requirejs/require.js"></script>
-<script>
-    requirejs.config({
-
-        baseUrl: '/',
-
-        paths: {
-
-            'domReady': './vendor/requirejs-domready/domReady',
-            'jquery': './vendor/jquery/dist/jquery',
-            'underscore': './vendor/underscore/underscore',
-
-            'angular': './vendor/angular/angular',
-            'angularRoute': './vendor/angular-route/angular-route',
-            'ui.bootstrap': './vendor/angular-bootstrap/ui-bootstrap',
-
-            'NavbarController': './js/controllers/NavbarController',
-            'SlidesController': './js/controllers/SlidesController',
-            'JsCastController': './js/controllers/JsCastController',
-            'PageController': './js/controllers/InspectorController',
-
-            'app': './js/app',
-            'config': './js/config',
-            'routes': './js/routes',
-            'controllers': './js/controllers'
-        },
-
-        shim: {
-            'jquery': {
-                exports: 'jQuery'
-            },
-            'angular': {
-                deps: [ 'jquery' ],
-                exports: 'angular'
-            },
-            'angular-route': {
-                deps: [ 'angular' ]
-            },
-            'ui-bootstrap': {
-                deps: [ 'jquery', 'angular' ]
-            }
-        }
-    });
-    require(['js/main'], function (main) {
-        main.start();
-    });
-</script>
+<script src="vendor/requirejs/require.js" data-main="js/jscast.js"></script>
 </body>
 </html>

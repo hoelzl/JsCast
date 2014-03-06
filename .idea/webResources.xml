@@ -6,6 +6,13 @@
         <entryData>
           <resourceRoots>
             <path value="file://$PROJECT_DIR$/src/templates" />
+            <path value="file://$PROJECT_DIR$/src/js" />
+            <path value="file://$PROJECT_DIR$/src/vendor" />
+            <path value="file://$PROJECT_DIR$/src/vendor/lodash/dist" />
+            <path value="file://$PROJECT_DIR$/src/vendor/jquery/dist" />
+            <path value="file://$PROJECT_DIR$/src/vendor/requirejs-domready" />
+            <path value="file://$PROJECT_DIR$/src/js/model" />
+            <path value="file://$PROJECT_DIR$/src/vendor/angular" />
           </resourceRoots>
         </entryData>
       </entry>

@@ -2,8 +2,8 @@
  * Created by tc on 3/Mar/2014.
  */
 
-import {app} from '../app';
-import '../config';
+import {app} from 'app';
+import 'config';
 
 // console.log('loading SlidesController');
 

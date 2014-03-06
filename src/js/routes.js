@@ -1,4 +1,8 @@
-import {app} from './app';
+/**
+ * Created by tc on 3/Mar/2014.
+ */
+
+import {app} from 'app';
 
 // console.log('loading routes.js');
 

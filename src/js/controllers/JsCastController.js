@@ -2,10 +2,10 @@
  * Created by tc on 3/Mar/2014.
  */
 
-import '../config';
-import {app} from '../app';
-module _ from '../../vendor/lodash/dist/lodash';
-import Slide from '../model/Slide';
+import 'config';
+import {app} from 'app';
+module _ from 'lodash';
+import Slide from 'Slide';
 
 // console.log('loading JsCastController');
 
