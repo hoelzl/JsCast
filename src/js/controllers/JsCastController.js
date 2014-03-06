@@ -79,7 +79,7 @@ function jsCastController ($scope, config) {
             }
             $scope.current.slide = newSlide;
         } else {
-            throw(Error("Trying to insert null as slide."));
+            throw(Error('Trying to insert null as slide.'));
         }
     };
 
@@ -87,9 +87,8 @@ function jsCastController ($scope, config) {
         var originalSlide = $scope.current.slide;
         var newSlide;
         if (originalSlide) {
-            newSlide =
-            new Slide('Duplicate of ' + originalSlide.title, originalSlide.text,
-                      originalSlide.thumbnail);
+            newSlide = new Slide(`Duplicate of ${originalSlide.title}`,
+                                 originalSlide.text, originalSlide.thumbnail);
         } else {
             newSlide = new Slide('Failed duplicate attempt');
         }
@@ -112,6 +111,7 @@ function jsCastController ($scope, config) {
         $scope.dirty();
     };
 
+    // TODO: This should not be here!
     $scope.drawContents = () => {
         // console.log('drawContents called');
         var slide = $scope.current.slide;

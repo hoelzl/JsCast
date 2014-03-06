@@ -5,9 +5,9 @@
 var currentId = 1;
 
 export class Slide {
-    constructor (title = 'Slide ' + currentId,
-                 text = 'Default text ' + currentId,
-                 thumbnail = '[thumbnail ' + currentId + ']') {
+    constructor (title = `Slide $currentId`,
+                 text = `Default text $currentId`,
+                 thumbnail = `[thumbnail ${currentId}]`) {
         this.title = title;
         this._text = text;
         this.thumbnail = thumbnail;
