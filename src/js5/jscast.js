@@ -18,6 +18,7 @@ var paths = {
    'JsCastController':    'js/controllers/JsCastController',
    'InspectorController': 'js/controllers/InspectorController',
 
+   'DrawingService': 'js/services/DrawingService',
    'SlideService': 'js/services/SlideService',
 
    'EventEmitter': 'js/model/EventEmitter',
@@ -65,7 +66,7 @@ require(['traceurRuntime'], function () {
    var modules = ['main', 'domReady', 'jquery', 'lodash', 'angular',
                   'angularRoute', 'ui.bootstrap', 'ui.utils',
                   'NavbarController', 'SlidesController', 'JsCastController',
-                  'InspectorController', 'SlideService'];
+                  'InspectorController', 'DrawingService','SlideService'];
    for (var i = 0; i < modules.length; i++) {
       registerModule(modules[i]);
    }

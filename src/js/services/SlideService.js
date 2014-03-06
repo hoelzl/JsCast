@@ -7,14 +7,14 @@ import {app} from 'app';
 import Slide from 'Slide';
 
 export class SlideService {
-   constructor () {
-      // console.log('Creating new SlideService')
+   constructor (/* DrawingService */) {
+      // console.log('Creating new SlideService:', DrawingService);
       this._slides = [];
       this._revision = 0;
       var service = this;
 
       this._current = {
-         _slide:     null,
+         _slide:         null,
          _dirtyListener: () => service.dirty(),
 
          get slide () {
@@ -32,7 +32,7 @@ export class SlideService {
             }
             service.dirty();
          }
-      }
+      };
    }
 
    get slides () {
@@ -44,13 +44,12 @@ export class SlideService {
       this.dirty();
    }
 
-   // @formatter:off
    get current () {
       return this._current;
    }
 
    dirty () {
-      console.log("dirty: ", this._revision++);
+      this._revision++;
    }
 
    get (start, count, callback) {
@@ -92,7 +91,7 @@ export class SlideService {
       var newSlide;
       if (originalSlide) {
          newSlide = new Slide(`Duplicate of ${originalSlide.title}`,
-                           originalSlide.text, originalSlide.thumbnail);
+                              originalSlide.text, originalSlide.thumbnail);
       } else {
          newSlide = new Slide('Failed duplicate attempt');
       }
@@ -102,7 +101,7 @@ export class SlideService {
 
    deleteSlide () {
       var deletedSlide = this.current.slide;
-      var slideIndex = this.findSlideIndex( deletedSlide);
+      var slideIndex = this.findSlideIndex(deletedSlide);
       var slides = this.slides;
       slides.splice(slideIndex, 1);
       if (slideIndex >= slides.length) {
@@ -118,7 +117,6 @@ export class SlideService {
       return deletedSlide;
    }
 }
-// @formatter:on
 
 
 app.service('SlideService', SlideService);

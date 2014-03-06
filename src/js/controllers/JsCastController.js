@@ -9,15 +9,12 @@ import Slide from 'Slide';
 
 // console.log('loading JsCastController');
 
-function getMainCanvas () {
-   return document.getElementById('main-canvas');
-}
-
-function jsCastController ($scope, config, slideService) {
+function jsCastController ($scope, config, drawingService, slideService) {
 
    $scope.appName = config.appName;
 
-   $scope.dirty = slideService.dirty;
+   $scope.dirty = () => slideService.dirty;
+
    Object.defineProperty($scope, 'slides', {
       get: () => slideService.slides,
    });
@@ -50,41 +47,23 @@ function jsCastController ($scope, config, slideService) {
 
    $scope.toggle = (thing) => {
       thing.visible = !thing.visible;
-      $scope.dirty();
+      drawingService.invalidateLayout();
    };
 
-   // TODO: This should not be here!
-   $scope.drawContents = () => {
-      // console.log('drawContents called');
-      var slide = slideService.current.slide;
-      var canvas = getMainCanvas();
-      // Clear the canvas
-      //noinspection SillyAssignmentJS
-      canvas.width = canvas.width;
-      if (slide) {
-         var text = slide.text;
-         if (text) {
-            // console.log('drawing text');
-            var lines = text.split('\n');
-            var y = 100;
-            var context = canvas.getContext('2d');
-            context.font = 'italic 40pt Calibri';
-            for (var line of lines) {
-               context.fillText(line, 50, y);
-               y += 60;
-            }
-         }
-      }
+   $scope.redraw = () => {
+      console.log('redrawing');
+      drawingService.drawSlide(slideService.current.slide);
    };
 
    $scope.$watch('revision()', () => {
-      console.log('Dirty watch');
-      setTimeout($scope.drawContents)
+      // console.log('Dirty watch');
+      drawingService.drawSlide(slideService.current.slide);
    });
 
 }
 
 export var controller = app.controller('JsCastController',
-                                       ['$scope', 'config', 'SlideService', jsCastController]);
+                                       ['$scope', 'config', 'DrawingService',
+                                        'SlideService', jsCastController]);
 
 export default controller;
