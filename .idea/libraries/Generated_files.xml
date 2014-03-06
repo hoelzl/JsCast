@@ -1,19 +1,5 @@
 <component name="libraryTable">
   <library name="Generated files" type="javaScript">
-    <properties>
-      <sourceFilesUrls>
-        <item url="file://$PROJECT_DIR$/out/src/js/routes.js" />
-        <item url="file://$PROJECT_DIR$/out/src/js/config.js" />
-        <item url="file://$PROJECT_DIR$/out/src/js/start.js" />
-        <item url="file://$PROJECT_DIR$/out/src/js/main.js" />
-        <item url="file://$PROJECT_DIR$/out/src/js/controllers/InspectorController.js" />
-        <item url="file://$PROJECT_DIR$/out/src/js/controllers/SlidesController.js" />
-        <item url="file://$PROJECT_DIR$/out/src/js/model/Slide.js" />
-        <item url="file://$PROJECT_DIR$/out/src/js/controllers/NavbarController.js" />
-        <item url="file://$PROJECT_DIR$/out/src/js/controllers/JsCastController.js" />
-        <item url="file://$PROJECT_DIR$/out/src/js/controllers/InspectorController.js" />
-      </sourceFilesUrls>
-    </properties>
     <CLASSES>
       <root url="file://$PROJECT_DIR$/out/src/js/routes.js" />
       <root url="file://$PROJECT_DIR$/out/src/js/config.js" />

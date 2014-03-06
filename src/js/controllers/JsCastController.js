@@ -3,8 +3,8 @@
  */
 
 import 'config';
+import 'SlideService';
 import {app} from 'app';
-module _ from 'lodash';
 import Slide from 'Slide';
 
 // console.log('loading JsCastController');
@@ -13,30 +13,31 @@ function getMainCanvas () {
    return document.getElementById('main-canvas');
 }
 
-function jsCastController ($scope, config) {
+function jsCastController ($scope, config, slideService) {
 
    $scope.appName = config.appName;
 
-   $scope.slides = [
-      new Slide('Slide 1', 'Some text for slide 1'),
-      new Slide('Slide 2', 'A different text\nfor slide 2\nAs you can see!')
-   ];
+   $scope.dirty = slideService.dirty;
+   Object.defineProperty($scope, 'slides', {
+      get: () => slideService.slides,
+   });
 
-   $scope.current = {
-      slideCounter: 3,
-      _slide:       $scope.slides[0],
-      // @formatter:off
-      get slide () {
-         return this._slide;
-      },
-      set slide (newSlide) {
-         this._slide = newSlide;
-         if (newSlide) {
-            // console.log('dirtying slide', newSlide.id);
-            newSlide.dirty();
-         }
-      }
-      // @formatter:on
+   Object.defineProperty($scope, 'current', {
+      get: () => slideService.current,
+      set: (newSlide) => slideService.current = newSlide
+   });
+
+   $scope.revision = () => {
+      return slideService.revision();
+   };
+   $scope.newSlide = () => {
+      return slideService.newSlide();
+   };
+   $scope.duplicateSlide = () => {
+      return slideService.duplicateSlide();
+   };
+   $scope.deleteSlide = () => {
+      return slideService.deleteSlide();
    };
 
    $scope.inspector = {
@@ -47,75 +48,15 @@ function jsCastController ($scope, config) {
       visible: true
    };
 
-   $scope.dirty = () => {
-      var slide = $scope.current.slide;
-      if (slide) {
-         slide.dirty();
-      }
-   };
-
    $scope.toggle = (thing) => {
       thing.visible = !thing.visible;
-      $scope.dirty();
-   };
-
-   $scope.newSlide = () => {
-      var slideId = $scope.current.slideCounter++;
-      var newSlide = new Slide();
-      $scope.slides.push(newSlide);
-      $scope.current.slide = newSlide;
-   };
-
-   $scope.findSlideIndex = (slide) => {
-      return _.indexOf($scope.slides, slide);
-   };
-
-   $scope.insertAfterSlide = (originalSlide, newSlide) => {
-      var slides = $scope.slides;
-      if (newSlide) {
-         if (originalSlide) {
-            slides.splice(_.indexOf(slides, originalSlide) + 1, 0, newSlide);
-         } else {
-            slides.push(newSlide);
-         }
-         $scope.current.slide = newSlide;
-      } else {
-         throw(Error('Trying to insert null as slide.'));
-      }
-   };
-
-   $scope.duplicateSlide = () => {
-      var originalSlide = $scope.current.slide;
-      var newSlide;
-      if (originalSlide) {
-         newSlide = new Slide(`Duplicate of ${originalSlide.title}`,
-                              originalSlide.text, originalSlide.thumbnail);
-      } else {
-         newSlide = new Slide('Failed duplicate attempt');
-      }
-      $scope.insertAfterSlide(originalSlide, newSlide);
-   };
-
-   $scope.deleteSlide = () => {
-      var slideIndex = $scope.findSlideIndex($scope.current.slide);
-      var slides = $scope.slides;
-      slides.splice(slideIndex, 1);
-      if (slideIndex >= slides.length) {
-         if (slides.length > 0) {
-            $scope.current.slide = slides[slides.length - 1];
-         } else {
-            $scope.current.slide = null;
-         }
-      } else {
-         $scope.current.slide = slides[slideIndex];
-      }
       $scope.dirty();
    };
 
    // TODO: This should not be here!
    $scope.drawContents = () => {
       // console.log('drawContents called');
-      var slide = $scope.current.slide;
+      var slide = slideService.current.slide;
       var canvas = getMainCanvas();
       // Clear the canvas
       //noinspection SillyAssignmentJS
@@ -136,14 +77,14 @@ function jsCastController ($scope, config) {
       }
    };
 
-   $scope.$watch('current.slide.dirtyTick', () => {
-      // console.log('dirty watch');
+   $scope.$watch('revision()', () => {
+      console.log('Dirty watch');
       setTimeout($scope.drawContents)
    });
 
-};
+}
 
 export var controller = app.controller('JsCastController',
-                                       ['$scope', 'config', jsCastController]);
+                                       ['$scope', 'config', 'SlideService', jsCastController]);
 
 export default controller;
