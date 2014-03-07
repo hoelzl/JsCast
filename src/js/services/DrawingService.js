@@ -15,15 +15,25 @@ export class DrawingService extends EventEmitter {
       super();
       // console.log('Creating new DrawingService');
 
+      // TODO: Get these values from the configuration.§
       var mainCanvas = document.getElementById('main-canvas');
+      var mainDiv = document.getElementById('main-div');
       var canvasHeight = 1000;
       var canvasWidth = 1600;
+      var defaultFontSize = 48;
+      var divBorder = 50;
+
       mainCanvas.height = canvasHeight;
       mainCanvas.width = canvasWidth;
+      mainDiv.height = canvasHeight;
+      mainDiv.width = canvasWidth;
 
       this._mainCanvas = mainCanvas;
+      this._mainDiv = mainDiv;
       this._canvasHeight = canvasHeight;
       this._canvasWidth = canvasWidth;
+      this._defaultFontSize = defaultFontSize;
+      this._divBorder = divBorder;
       this._currentSlide = null;
 
       document.defaultView.addEventListener('resize', () => {
@@ -39,6 +49,7 @@ export class DrawingService extends EventEmitter {
       // console.log('drawContents called');
       this._currentSlide = slide;
       var canvas = this._mainCanvas;
+      var div = this._mainDiv;
       // Clear the canvas
       //noinspection SillyAssignmentJS
       canvas.width = canvas.width;
@@ -46,14 +57,16 @@ export class DrawingService extends EventEmitter {
          var text = slide.text;
          if (text) {
             // console.log('drawing text');
-            var lines = text.split('\n');
-            var y = 100;
+            // TODO: Maybe set HTML from markdown?
+            div.innerText = text;
             var context = canvas.getContext('2d');
-            context.font = 'italic 40pt Calibri';
-            for (var line of lines) {
-               context.fillText(line, 50, y);
-               y += 60;
-            }
+            context.beginPath();
+            context.rect(200, 150, 400, 200);
+            context.fillStyle = slide.backgroundColor;
+            context.fill();
+            context.lineWidth = 7;
+            context.strokeStyle = slide.forgroundColor;
+            context.stroke();
          }
       }
    }
@@ -80,6 +93,8 @@ export class DrawingService extends EventEmitter {
       //             additionalOffset);
 
       return {
+         top:  offsetTop,
+         left: offsetLeft,
          height: viewport.height() - offsetTop - 10,
          width: viewport.width() - offsetLeft - inspectorWidth -
                 additionalOffset
@@ -98,23 +113,41 @@ export class DrawingService extends EventEmitter {
       var scale = Math.min(scaleWidth, scaleHeight);
 
       return {
-         height: canvasHeight * scale,
-         width: canvasWidth * scale
-      }
+         scale:     scale,
+         canvasCss: {
+            position: 'absolute',
+            top:      maxDimensions.top,
+            left:     maxDimensions.left,
+            height: canvasHeight * scale,
+            width: canvasWidth * scale
+         },
+         divCss:    {
+            position: 'absolute',
+            top: maxDimensions.top + this._divBorder * scale,
+            left: maxDimensions.left + this._divBorder * scale,
+            height: (canvasHeight - 2 * this._divBorder) * scale,
+            width: (canvasWidth - 2 * this._divBorder) * scale
+         }}
    }
 
    resizeCanvas () {
       var mainCanvas = $('#main-canvas');
       var dimensions = this.computeScaledDimensions(mainCanvas);
+      var css = dimensions.canvasCss;
+      var divCss = dimensions.divCss;
+      var scale = dimensions.scale;
 
       // console.log('resizing canvas', dimensions.height, dimensions.width);
 
+      // Set the dimensions of the main drawing area and position it absolutely.
       var $mainCanvas = $(this._mainCanvas);
-      $mainCanvas.height(dimensions.height);
-      $mainCanvas.width(dimensions.width);
-      // And adjust the inspector and slide list as well.  But use the CSS height here.
-      $('#slide-list').height(dimensions.height);
-      $('#inspector').height(dimensions.height);
+      var $mainDiv = $(this._mainDiv);
+      $mainCanvas.css(css);
+      $mainDiv.css(divCss);
+      $mainDiv.css('font-size', this._defaultFontSize * scale);
+      // Adjust the inspector and slide list as well.
+      $('#slide-list').height(css.height);
+      $('#inspector').height(css.height);
       this.emit('canvas-resized');
    }
 

@@ -42,13 +42,15 @@
     </ul>
 </div>
 <div style="float:left; margin: 5px 0">
+    <div id="main-div"
+            style="z-index: 0;"></div>
     <canvas id="main-canvas"
-            style="background-color: lightgray"></canvas>
+            style="z-index: 1"></canvas>
 </div>
 <div id="inspector"
      ng-if="inspector.visible"
      class="container"
-     style="width: 280px; float: left; margin: 5px 5px 5px 10px"
+     style="width: 280px; float: right; margin: 5px 5px 5px 10px"
      ng-controller="InspectorController">
     <div class="row">
         <b class="col-md-12">Inspector for Slide {{current.slide.id}}</b><br><br>
