@@ -9,17 +9,21 @@ import {Slide} from 'Slide';
 
 import EventEmitter from 'EventEmitter';
 
-
-function getMainCanvas () {
-   return document.getElementById('main-canvas');
-}
-
 export class DrawingService extends EventEmitter {
 
    constructor () {
       super();
       // console.log('Creating new DrawingService');
 
+      var mainCanvas = document.getElementById('main-canvas');
+      var canvasHeight = 1000;
+      var canvasWidth = 1600;
+      mainCanvas.height = canvasHeight;
+      mainCanvas.width = canvasWidth;
+
+      this._mainCanvas = mainCanvas;
+      this._canvasHeight = canvasHeight;
+      this._canvasWidth = canvasWidth;
       this._currentSlide = null;
 
       document.defaultView.addEventListener('resize', () => {
@@ -38,7 +42,7 @@ export class DrawingService extends EventEmitter {
       } else {
          slide = this._currentSlide;
       }
-      var canvas = getMainCanvas();
+      var canvas = this._mainCanvas;
       // Clear the canvas
       //noinspection SillyAssignmentJS
       canvas.width = canvas.width;
@@ -58,7 +62,8 @@ export class DrawingService extends EventEmitter {
       }
    }
 
-   computeMaxDimensions (canvas) {
+   computeMaxDimensions (canvas = this._mainCanvas) {
+      canvas = $(canvas);
       var slideList = $('#slide-list');
 
       if (slideList.length > 0) {
@@ -85,19 +90,32 @@ export class DrawingService extends EventEmitter {
       }
    }
 
+   computeScaledDimensions (canvas = this._mainCanvas) {
+      canvas = $(canvas);
+
+      var maxDimensions = this.computeMaxDimensions(canvas)
+      var canvasHeight = this._canvasHeight;
+      var canvasWidth = this._canvasWidth;
+
+      var scaleHeight = maxDimensions.height / canvasHeight;
+      var scaleWidth = maxDimensions.width / canvasWidth;
+      var scale = Math.min(scaleWidth, scaleHeight);
+
+      return {
+         height: canvasHeight * scale,
+         width: canvasWidth * scale
+      }
+   }
+
    resizeCanvas () {
       var mainCanvas = $('#main-canvas');
-      var dimensions = this.computeMaxDimensions(mainCanvas);
-
-      // Note: set the height and width of the underlying canvas element.  Using
-      // the jQuery height and with leads to a CSS transform of the canvas in its
-      // original size.  Maybe combine these two things to achieve scaling to
-      // the screen proportions.
+      var dimensions = this.computeScaledDimensions(mainCanvas);
 
       console.log('resizing canvas', dimensions.height, dimensions.width);
-      var canvasDom = mainCanvas.get(0);
-      canvasDom.height = dimensions.height;
-      canvasDom.width = dimensions.width;
+
+      var $mainCanvas = $(this._mainCanvas);
+      $mainCanvas.height(dimensions.height);
+      $mainCanvas.width(dimensions.width);
       // And adjust the inspector and slide list as well.  But use the CSS height here.
       $('#slide-list').height(dimensions.height);
       $('#inspector').height(dimensions.height);
