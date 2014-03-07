@@ -51,8 +51,14 @@ function jsCastController ($scope, config, drawingService, slideService) {
    };
 
    $scope.redraw = () => {
-      console.log('redrawing');
+      // console.log('redrawing');
       drawingService.drawSlide(slideService.current.slide);
+   };
+
+   $scope.addRectangle = () => {
+      console.log('adding rectangle');
+      var rect = drawingService.newRectangle();
+      slideService.addObject(rect);
    };
 
    $scope.$watch('revision()', () => {

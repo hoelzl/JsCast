@@ -4,10 +4,24 @@
 
 module _ from 'lodash';
 module domReady from 'domReady';
+module fabric from 'fabric'
+
 import {app} from 'app';
 import {Slide} from 'Slide';
 
 import EventEmitter from 'EventEmitter';
+
+// To make WebStorm happy...
+var domReady;
+
+var colors = ['yellow', 'red', 'blue', 'green', 'violet', 'magenta', 'cyan',
+              'lightblue', 'lightgoldenrodyellow', 'lightcoral', 'coral',
+              'darkblue', 'gray', 'lightgray', 'darkgray'];
+
+export function randomColor () {
+   return colors[Math.round(Math.random() * colors.length)];
+}
+
 
 export class DrawingService extends EventEmitter {
 
@@ -15,20 +29,31 @@ export class DrawingService extends EventEmitter {
       super();
       // console.log('Creating new DrawingService');
 
-      // TODO: Get these values from the configuration.§
+      // TODO: Get these values from the configuration.
       var mainCanvas = document.getElementById('main-canvas');
+      var containerDiv = document.getElementById('container-div');
       var mainDiv = document.getElementById('main-div');
       var canvasHeight = 1000;
       var canvasWidth = 1600;
+      var fabricCanvas = new fabric.Canvas('main-canvas', {
+         height: canvasHeight,
+         width: canvasWidth
+      });
+
       var defaultFontSize = 48;
       var divBorder = 50;
-
-      mainCanvas.height = canvasHeight;
-      mainCanvas.width = canvasWidth;
-      mainDiv.height = canvasHeight;
-      mainDiv.width = canvasWidth;
+      if (mainCanvas) {
+         mainCanvas.height = canvasHeight;
+         mainCanvas.width = canvasWidth;
+      }
+      if (mainDiv) {
+         mainDiv.height = canvasHeight;
+         mainDiv.width = canvasWidth;
+      }
 
       this._mainCanvas = mainCanvas;
+      this._fabricCanvas = fabricCanvas;
+      this._containerDiv = containerDiv;
       this._mainDiv = mainDiv;
       this._canvasHeight = canvasHeight;
       this._canvasWidth = canvasWidth;
@@ -45,29 +70,42 @@ export class DrawingService extends EventEmitter {
       }));
    }
 
+   newRectangle () {
+      var rect = new fabric.Rect({ width: 200 * Math.random() + 50,
+                                height: 200 * Math.random() + 50,
+                                top: 200 * Math.random() + 50,
+                                left: 200 * Math.random() + 50,
+                                fill:       randomColor() });
+      rect.set('selectable', true);
+      return rect;
+   }
+
    drawSlide (slide = this._currentSlide) {
       // console.log('drawContents called');
       this._currentSlide = slide;
+      if (!slide) return;
+
       var canvas = this._mainCanvas;
       var div = this._mainDiv;
       // Clear the canvas
       //noinspection SillyAssignmentJS
       canvas.width = canvas.width;
-      if (slide) {
+      if (div) {
          var text = slide.text;
          if (text) {
-            // console.log('drawing text');
+            console.log('drawing text');
             // TODO: Maybe set HTML from markdown?
             div.innerText = text;
-            var context = canvas.getContext('2d');
-            context.beginPath();
-            context.rect(200, 150, 400, 200);
-            context.fillStyle = slide.backgroundColor;
-            context.fill();
-            context.lineWidth = 7;
-            context.strokeStyle = slide.forgroundColor;
-            context.stroke();
          }
+      }
+      var fabricCanvas = this._fabricCanvas;
+      if (fabricCanvas) {
+         fabricCanvas.deactivateAll();
+         fabricCanvas.clear();
+         for (var i = 0, len = slide.objects.length; i < len; i++) {
+            fabricCanvas.add(slide.objects[i]);
+         }
+         fabricCanvas.renderAll();
       }
    }
 
@@ -104,7 +142,7 @@ export class DrawingService extends EventEmitter {
    computeScaledDimensions (canvas = this._mainCanvas) {
       canvas = $(canvas);
 
-      var maxDimensions = this.computeMaxDimensions(canvas)
+      var maxDimensions = this.computeMaxDimensions(canvas);
       var canvasHeight = this._canvasHeight;
       var canvasWidth = this._canvasWidth;
 
@@ -114,6 +152,7 @@ export class DrawingService extends EventEmitter {
 
       return {
          scale:     scale,
+         maxHeight: maxDimensions.height,
          canvasCss: {
             position: 'absolute',
             top:      maxDimensions.top,
@@ -131,31 +170,46 @@ export class DrawingService extends EventEmitter {
    }
 
    resizeCanvas () {
-      var mainCanvas = $('#main-canvas');
-      var dimensions = this.computeScaledDimensions(mainCanvas);
-      var css = dimensions.canvasCss;
-      var divCss = dimensions.divCss;
-      var scale = dimensions.scale;
+      if (this._mainCanvas) {
+         var mainCanvas = this._mainCanvas;
+         var dimensions = this.computeScaledDimensions(mainCanvas);
+         var css = dimensions.canvasCss;
+         var divCss = dimensions.divCss;
+         var scale = dimensions.scale;
 
-      // console.log('resizing canvas', dimensions.height, dimensions.width);
+         // console.log('resizing canvas', dimensions.height, dimensions.width);
 
-      // Set the dimensions of the main drawing area and position it absolutely.
-      var $mainCanvas = $(this._mainCanvas);
-      var $mainDiv = $(this._mainDiv);
-      $mainCanvas.css(css);
-      $mainDiv.css(divCss);
-      $mainDiv.css('font-size', this._defaultFontSize * scale);
-      // Adjust the inspector and slide list as well.
-      $('#slide-list').height(css.height);
-      $('#inspector').height(css.height);
-      this.emit('canvas-resized');
+         // Set the dimensions of the main drawing area and position it absolutely.
+
+         mainCanvas.height = css.height;
+         mainCanvas.width = css.width;
+         var $mainCanvas = $(mainCanvas);
+         var $containerDiv = $(this._containerDiv);
+         var $mainDiv = $(this._mainDiv);
+         $mainCanvas.css(css);
+         $containerDiv.css(css);
+         $mainDiv.css(divCss);
+         $mainDiv.css('font-size', this._defaultFontSize * scale);
+
+         // Children of the main canvas have to positioned relative to the
+         // canvas, not the page...
+         css.left = 0;
+         css.top = 0;
+
+         this._fabricCanvas.setDimensions(css);
+         // this._fabricCanvas.initialize(css);
+         // Adjust the inspector and slide list as well.
+         $('#slide-list').height(dimensions.maxHeight);
+         $('#inspector').height(dimensions.maxHeight);
+         this.emit('canvas-resized');
+      }
    }
 
    invalidateLayout () {
       // console.log('invalidateLayout()')
       setTimeout(() => {
          this.resizeCanvas();
-         this.drawSlide();
+         setTimeout(() => this.drawSlide());
       })
    }
 }

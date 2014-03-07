@@ -6,6 +6,7 @@ module _ from 'lodash';
 import {app} from 'app';
 import Slide from 'Slide';
 
+
 export class SlideService {
    constructor (/* DrawingService */) {
       // console.log('Creating new SlideService:', DrawingService);
@@ -115,6 +116,11 @@ export class SlideService {
       }
       this.dirty();
       return deletedSlide;
+   }
+
+   addObject (object) {
+      this._current.slide.addObject(object);
+      this.dirty();
    }
 }
 

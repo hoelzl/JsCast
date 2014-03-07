@@ -20,6 +20,7 @@
             <li><a data-ng-click="newSlide()">New Slide</a></li>
             <li><a data-ng-click="duplicateSlide()">Duplicate Slide</a></li>
             <li><a data-ng-click="deleteSlide()">Delete Slide</a></li>
+            <li><a data-ng-click="addRectangle()">AddRectangle</a></li>
             <li><a data-ng-click="toggle(slideList)">Toggle SlideList</a></li>
             <li><a data-ng-click="toggle(inspector)">Toggle Inspector</a></li>
         </ul>
@@ -41,9 +42,9 @@
         </li>
     </ul>
 </div>
-<div style="float:left; margin: 5px 0">
-    <div id="main-div"
-            style="z-index: 0;"></div>
+<div id="container-div" style="position:absolute;">
+    <!-- <div id="main-div"
+            style="z-index: 0;"></div> -->
     <canvas id="main-canvas"
             style="z-index: 1"></canvas>
 </div>
@@ -64,6 +65,10 @@
         <textarea class="col-md-8"
                   rows="5"
                   ng-model="current.slide.text"></textarea>
+    </div>
+    <div class="row">
+        <span class="col-md-4">Objects:</span>
+        <span class="col-md-8">{{current.slide.objects}}</span>
     </div>
 </div>
 <script src="vendor/requirejs/require.js" data-main="js/jscast.js"></script>
