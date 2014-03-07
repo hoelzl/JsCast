@@ -162,8 +162,8 @@ export class DrawingService extends EventEmitter {
          },
          divCss:    {
             position: 'absolute',
-            top: maxDimensions.top + this._divBorder * scale,
-            left: maxDimensions.left + this._divBorder * scale,
+            top: this._divBorder * scale,
+            left: this._divBorder * scale,
             height: (canvasHeight - 2 * this._divBorder) * scale,
             width: (canvasWidth - 2 * this._divBorder) * scale
          }}
@@ -183,21 +183,20 @@ export class DrawingService extends EventEmitter {
 
          mainCanvas.height = css.height;
          mainCanvas.width = css.width;
-         var $mainCanvas = $(mainCanvas);
          var $containerDiv = $(this._containerDiv);
+         var $mainCanvas = $(mainCanvas);
          var $mainDiv = $(this._mainDiv);
-         $mainCanvas.css(css);
          $containerDiv.css(css);
-         $mainDiv.css(divCss);
-         $mainDiv.css('font-size', this._defaultFontSize * scale);
 
          // Children of the main canvas have to positioned relative to the
          // canvas, not the page...
          css.left = 0;
          css.top = 0;
-
+         $mainCanvas.css(css);
+         $mainDiv.css(divCss);
+         $mainDiv.css('font-size', this._defaultFontSize * scale);
          this._fabricCanvas.setDimensions(css);
-         // this._fabricCanvas.initialize(css);
+
          // Adjust the inspector and slide list as well.
          $('#slide-list').height(dimensions.maxHeight);
          $('#inspector').height(dimensions.maxHeight);
