@@ -4,6 +4,7 @@
 
 var paths = {
    'domReady':       'vendor/requirejs-domready/domReady',
+   'fabric':         'vendor/fabric/dist/fabric.require',
    'jquery':         'vendor/jquery/dist/jquery',
    'lodash':         'vendor/lodash/dist/lodash',
    'traceurRuntime': 'vendor/traceur-runtime/traceur-runtime',
@@ -19,10 +20,10 @@ var paths = {
    'InspectorController': 'js/controllers/InspectorController',
 
    'DrawingService': 'js/services/DrawingService',
-   'SlideService': 'js/services/SlideService',
+   'SlideService':   'js/services/SlideService',
 
    'EventEmitter': 'js/model/EventEmitter',
-   'Slide': 'js/model/Slide',
+   'Slide':        'js/model/Slide',
 
    'app':         'js/app',
    'config':      'js/config',
@@ -63,15 +64,18 @@ require(['traceurRuntime'], function () {
       $traceurRuntime.ModuleStore.registerModule(name, paths[name]);
    }
 
-   var modules = ['main', 'domReady', 'jquery', 'lodash', 'angular',
-                  'angularRoute', 'ui.bootstrap', 'ui.utils',
-                  'NavbarController', 'SlidesController', 'JsCastController',
-                  'InspectorController', 'DrawingService','SlideService'];
+   var modules = ['domReady', 'jquery', 'angular', 'angularRoute',
+                  'ui.bootstrap', 'ui.utils', 'NavbarController',
+                  'SlidesController', 'JsCastController', 'InspectorController',
+                  'DrawingService', 'SlideService'];
    for (var i = 0; i < modules.length; i++) {
       registerModule(modules[i]);
    }
 
-   require(modules, function (main) {
-      main.start();
+   require(modules, function (domReady) {
+      domReady(function () {
+         angular.bootstrap(document, ['app']);
+         $('body').removeClass('hidden');
+      });
    });
 });

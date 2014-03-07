@@ -35,13 +35,9 @@ export class DrawingService extends EventEmitter {
       }));
    }
 
-   drawSlide (slide) {
+   drawSlide (slide = this._currentSlide) {
       // console.log('drawContents called');
-      if (slide) {
-         this._currentSlide = slide;
-      } else {
-         slide = this._currentSlide;
-      }
+      this._currentSlide = slide;
       var canvas = this._mainCanvas;
       // Clear the canvas
       //noinspection SillyAssignmentJS
@@ -80,8 +76,8 @@ export class DrawingService extends EventEmitter {
       var additionalOffset = canvas.outerWidth(true) - canvas.outerWidth();
       var viewport = $(document.defaultView);
 
-      console.log('dimensions:', viewport.width(), offsetLeft, inspectorWidth,
-                  additionalOffset);
+      // console.log('dimensions:', viewport.width(), offsetLeft, inspectorWidth,
+      //             additionalOffset);
 
       return {
          height: viewport.height() - offsetTop - 10,
@@ -111,7 +107,7 @@ export class DrawingService extends EventEmitter {
       var mainCanvas = $('#main-canvas');
       var dimensions = this.computeScaledDimensions(mainCanvas);
 
-      console.log('resizing canvas', dimensions.height, dimensions.width);
+      // console.log('resizing canvas', dimensions.height, dimensions.width);
 
       var $mainCanvas = $(this._mainCanvas);
       $mainCanvas.height(dimensions.height);
@@ -122,16 +118,11 @@ export class DrawingService extends EventEmitter {
       this.emit('canvas-resized');
    }
 
-   redrawSlide () {
-      if (this._currentSlide) {
-         this.drawSlide(this._currentSlide);
-      }
-   }
-
    invalidateLayout () {
+      // console.log('invalidateLayout()')
       setTimeout(() => {
          this.resizeCanvas();
-         this.redrawSlide();
+         this.drawSlide();
       })
    }
 }
