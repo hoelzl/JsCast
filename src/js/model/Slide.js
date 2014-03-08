@@ -9,11 +9,11 @@ var currentId = 1;
 export class Slide extends EventEmitter {
    constructor (title = `Slide ${currentId}`,
                 text = `Default text ${currentId}`,
-                thumbnail = `[thumbnail ${currentId}]`) {
+                thumbnail = `[thumbnail ${currentId}]`, objects = []) {
       super();
       this.title = title;
       this._text = text;
-      this.objects = [];
+      this.objects = objects;
       this.thumbnail = thumbnail;
       this.id = currentId++;
    }
@@ -33,6 +33,11 @@ export class Slide extends EventEmitter {
 
    addObject (obj) {
       this.objects.push(obj);
+   }
+
+   duplicate () {
+      return new Slide(`Duplicate of ${this.title}`, this.text, this.thumbnail,
+                       _.map(this.objects, obj => obj.clone(x => x)));
    }
 }
 

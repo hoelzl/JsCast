@@ -91,8 +91,7 @@ export class SlideService {
       var originalSlide = this.current.slide;
       var newSlide;
       if (originalSlide) {
-         newSlide = new Slide(`Duplicate of ${originalSlide.title}`,
-                              originalSlide.text, originalSlide.thumbnail);
+         newSlide = originalSlide.duplicate();
       } else {
          newSlide = new Slide('Failed duplicate attempt');
       }

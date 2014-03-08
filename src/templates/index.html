@@ -44,7 +44,7 @@
 </div>
 <div id="container-div" style="position:absolute;">
     <div id="main-div"
-            style="z-index: 0;"></div>
+         style="z-index: 0;"></div>
     <canvas id="main-canvas"
             style="z-index: 1"></canvas>
 </div>
@@ -54,21 +54,31 @@
      style="width: 280px; float: right; margin: 5px 5px 5px 10px"
      ng-controller="InspectorController">
     <div class="row">
-        <b class="col-md-12">Inspector for Slide {{current.slide.id}}</b><br><br>
+        <b class="col-md-12">Inspector for Slide
+            {{current.slide.id}}</b><br><br>
     </div>
     <div class="row">
-        <span class="col-md-4">Title:</span>
-        <input class="col-md-8" type="text" ng-model="current.slide.title"><br>
+        <label for="inspector-slide-title" class="col-md-4">Title:</label>
+        <input id="inspector-slide-title"
+               class="col-md-8" type="text" ng-model="current.slide.title"><br>
     </div>
     <div class="row">
-        <span class="col-md-4">Text:</span>
-        <textarea class="col-md-8"
+        <label for="inspector-slide-text" class="col-md-4">Text:</label>
+        <textarea id="inspector-slide-text"
+                  class="col-md-8"
                   rows="5"
                   ng-model="current.slide.text"></textarea>
     </div>
     <div class="row">
-        <span class="col-md-4">Objects:</span>
-        <span class="col-md-8">{{current.slide.objects}}</span>
+        <label for="inspector-slide-objects"
+               class="col-md-4">Objects:</label>
+
+        <div id="inspector-slide-objects"
+             class="col-md-8">
+            <span ng-repeat="obj in current.slide.objects">
+                {{obj.type}}
+            </span>
+        </div>
     </div>
 </div>
 <script src="vendor/requirejs/require.js" data-main="js/jscast.js"></script>

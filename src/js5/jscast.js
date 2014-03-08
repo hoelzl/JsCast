@@ -58,6 +58,7 @@ var requirejsConfig = {
 };
 
 requirejs.config(requirejsConfig);
+var $traceurRuntime;
 
 require(['traceurRuntime'], function () {
    function registerModule (name) {

@@ -16,7 +16,7 @@ function jsCastController ($scope, config, drawingService, slideService) {
    $scope.dirty = () => slideService.dirty;
 
    Object.defineProperty($scope, 'slides', {
-      get: () => slideService.slides,
+      get: () => slideService.slides
    });
 
    Object.defineProperty($scope, 'current', {

@@ -93,7 +93,7 @@ export class DrawingService extends EventEmitter {
       if (div) {
          var text = slide.text;
          if (text) {
-            console.log('drawing text');
+            // console.log('drawing text');
             // TODO: Maybe set HTML from markdown?
             div.innerText = text;
          }
