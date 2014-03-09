@@ -3,6 +3,7 @@
   <component name="JavaScriptLibraryMappings">
     <file url="file://$PROJECT_DIR$/src/js/controllers/JsCastController.js" libraries="{HTML, HTML5 / EcmaScript 5}" />
     <file url="file://$PROJECT_DIR$/src/js/services/DrawingService.js" libraries="{HTML, HTML5 / EcmaScript 5}" />
+    <file url="file://$PROJECT_DIR$/src/js/services/SlideService.js" libraries="{HTML}" />
     <file url="PROJECT" libraries="{Bower dependencies for JsCast}" />
     <excludedPredefinedLibrary name="HTML" />
     <excludedPredefinedLibrary name="HTML5 / EcmaScript 5" />

@@ -101,24 +101,33 @@ export class SlideService {
 
    deleteSlide () {
       var deletedSlide = this.current.slide;
-      var slideIndex = this.findSlideIndex(deletedSlide);
-      var slides = this.slides;
-      slides.splice(slideIndex, 1);
-      if (slideIndex >= slides.length) {
-         if (slides.length > 0) {
-            this.current.slide = slides[slides.length - 1];
+      if (deletedSlide) {
+         var slideIndex = this.findSlideIndex(deletedSlide);
+         var slides = this.slides;
+         if (slideIndex >= 0) {
+            slides.splice(slideIndex, 1);
+            if (slideIndex >= slides.length) {
+               if (slides.length > 0) {
+                  this.current.slide = slides[slides.length - 1];
+               } else {
+                  this.current.slide = null;
+               }
+            } else {
+               this.current.slide = slides[slideIndex];
+            }
+            this.dirty();
          } else {
-            this.current.slide = null;
+            console.log('Trying to delete non-existent slide.')
          }
-      } else {
-         this.current.slide = slides[slideIndex];
       }
-      this.dirty();
       return deletedSlide;
    }
 
    addObject (object) {
-      this._current.slide.addObject(object);
+      console.log(this);
+      if (this._current && this._current.slide) {
+         this._current.slide.addObject(object);
+      }
       this.dirty();
    }
 }

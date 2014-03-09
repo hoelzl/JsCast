@@ -19,6 +19,7 @@ function jsCastController ($scope, config, drawingService, slideService) {
       get: () => slideService.slides
    });
 
+
    Object.defineProperty($scope, 'current', {
       get: () => slideService.current,
       set: (newSlide) => slideService.current = newSlide
@@ -56,9 +57,19 @@ function jsCastController ($scope, config, drawingService, slideService) {
    };
 
    $scope.addRectangle = () => {
-      // console.log('adding rectangle');
-      var rect = drawingService.newRectangle();
-      slideService.addObject(rect);
+      drawingService.newRectangle(obj => slideService.addObject(obj));
+   };
+
+   $scope.addEllipse = () => {
+      drawingService.newEllipse(obj => slideService.addObject(obj));
+   };
+
+   $scope.addTriangle = () => {
+      drawingService.newTriangle(obj => slideService.addObject(obj));
+   };
+
+   $scope.addSvgImage = () => {
+      drawingService.newSvgImage(obj => slideService.addObject(obj));
    };
 
    $scope.$watch('revision()', () => {

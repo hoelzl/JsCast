@@ -19,10 +19,26 @@ var colors = ['yellow', 'red', 'blue', 'green', 'violet', 'magenta', 'cyan',
               'lightblue', 'lightgoldenrodyellow', 'lightcoral', 'coral',
               'darkblue', 'gray', 'lightgray', 'darkgray'];
 
-export function randomColor () {
-   return colors[Math.round(Math.random() * colors.length)];
+function randomElement (array) {
+   return array[Math.round(Math.random() * array.length)];
 }
 
+export function randomColor () {
+   return randomElement(colors);
+}
+
+var svgImages = ['assets/10-kg-weight.svg', 'assets/bird-1.svg',
+                 'assets/happy-bird.svg', 'assets/tiger-1.svg',
+                 'assets/wanderer.svg'];
+
+export function randomSvgImage () {
+   return randomElement(svgImages);
+}
+
+
+function mergeDefaultParameters (parameters, defaults) {
+   return jQuery.extend(parameters || {}, defaults);
+}
 
 export class DrawingService extends EventEmitter {
 
@@ -74,23 +90,78 @@ export class DrawingService extends EventEmitter {
       }, 0));
    }
 
-   static mergeDefaultParameters (parameters) {
-      return jQuery.extend(parameters, { width: 200 * Math.random() + 50,
+   newObject (cont, kind = fabric.Rect, parameters = {}, defaults = {}) {
+      parameters = mergeDefaultParameters(parameters, defaults);
+      var obj = new kind(parameters);
+      obj.set('selectable', true);
+      cont(obj);
+   }
+
+   rectangleDefaults () {
+      var result = {
+         width: 200 * Math.random() + 50,
          height: 200 * Math.random() + 50,
          top: 200 * Math.random() + 50,
          left: 200 * Math.random() + 50,
-         fill: randomColor() });
+         rx:   Math.random() > 0.5 ? 20 * Math.random() : 0,
+         ry:   Math.random() > 0.5 ? 20 * Math.random() : 0,
+         fill: randomColor(colors)
+      };
+      return result;
    }
 
-   newObject (kind = fabric.Rect, parameters = {}) {
-      parameters = DrawingService.mergeDefaultParameters(parameters);
-      var obj = new kind(parameters);
-      obj.set('selectable', true);
-      return obj;
+   newRectangle (cont, parameters = {}) {
+      this.newObject(cont, fabric.Rect, parameters, this.rectangleDefaults());
    }
 
-   newRectangle (parameters = {}) {
-      return this.newObject(fabric.Rect, parameters);
+   ellipseDefaults () {
+      var result = {
+         top: 200 * Math.random() + 50,
+         left: 200 * Math.random() + 50,
+         rx: 100 * Math.random() + 50,
+         ry: 100 * Math.random() + 50,
+         fill: randomColor(colors) };
+      return result;
+   }
+
+   newEllipse (cont, parameters = {}) {
+      this.newObject(cont, fabric.Ellipse, parameters, this.ellipseDefaults());
+   }
+
+   triangleDefaults () {
+      var result = {
+         width: 200 * Math.random() + 50,
+         height: 200 * Math.random() + 50,
+         top: 200 * Math.random() + 50,
+         left: 200 * Math.random() + 50,
+         fill: randomColor(colors) };
+
+      return result;
+   }
+
+   newTriangle (cont, parameters = {}) {
+      this.newObject(cont, fabric.Triangle, parameters,
+                     this.triangleDefaults());
+   }
+
+   svgImageDefaults () {
+      var result = {
+         url: randomSvgImage(),
+         width: 200 * Math.random() + 50,
+         height: 200 * Math.random() + 50,
+         top: 200 * Math.random() + 50,
+         left: 200 * Math.random() + 50 };
+
+      return result;
+   }
+
+   newSvgImage (cont, parameters = {}) {
+      parameters = mergeDefaultParameters(parameters, this.svgImageDefaults());
+      // TODO: Need to introduce error handling, etc.
+      fabric.loadSVGFromURL(parameters.url, (objects, options) => {
+         var group = fabric.util.groupSVGElements(objects, options);
+         cont(group);
+      });
    }
 
    drawSlide (slide = this._currentSlide) {

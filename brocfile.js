@@ -30,5 +30,11 @@ module.exports = function (broccoli) {
         destDir: '' 
     });
 
-    return [js5, js, vendor, templates];
+    var assets = broccoli.makeTree('src/assets');
+    assets = pickFiles(assets, {
+        srcDir: '/',
+        destDir: 'assets'
+    });
+
+    return [js5, js, vendor, templates, assets];
 };

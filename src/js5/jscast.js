@@ -11,7 +11,7 @@ var paths = {
 
    'angular':      'vendor/angular/angular',
    'angularRoute': 'vendor/angular-route/angular-route',
-   'ui.bootstrap': 'vendor/angular-bootstrap/ui-bootstrap',
+   'ui.bootstrap': 'vendor/angular-bootstrap/ui-bootstrap-tpls',
    'ui.utils':     'vendor/angular-ui-utils/ui-utils',
 
    'NavbarController':    'js/controllers/NavbarController',
@@ -76,7 +76,6 @@ require(['traceurRuntime'], function () {
    require(modules, function (domReady) {
       domReady(function () {
          angular.bootstrap(document, ['app']);
-         $('body').removeClass('hidden');
       });
    });
 });
