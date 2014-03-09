@@ -3,6 +3,7 @@
  */
 
 module _ from 'lodash';
+module angular from 'angular';
 import {app} from 'app';
 import Slide from 'Slide';
 
@@ -50,6 +51,7 @@ export class SlideService {
    }
 
    dirty () {
+      // console.log('dirty()');
       this._revision++;
    }
 
@@ -123,15 +125,13 @@ export class SlideService {
       return deletedSlide;
    }
 
-   addObject (object) {
-      console.log(this);
-      if (this._current && this._current.slide) {
-         this._current.slide.addObject(object);
+   addObject (object, slide) {
+      if (slide) {
+         slide.addObject(object);
+         slide.dirty();
       }
-      this.dirty();
    }
 }
-
 
 app.service('SlideService', SlideService);
 

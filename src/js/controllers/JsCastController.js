@@ -11,6 +11,26 @@ import Slide from 'Slide';
 
 function jsCastController ($scope, config, drawingService, slideService) {
 
+   function makeObjectAdder (creator) {
+      return () => {
+         var slide = slideService.current.slide;
+         drawingService[creator](obj => {
+            $scope.safeApply(() => slideService.addObject(obj, slide))
+         });
+      }
+   }
+
+   $scope.safeApply = (fn) => {
+      var phase = $scope.$root.$$phase;
+      if (phase == '$apply' || phase == '$digest') {
+         if (fn && typeof(fn) === 'function') {
+            fn();
+         }
+      } else {
+         $scope.$apply(fn);
+      }
+   };
+
    $scope.appName = config.appName;
 
    $scope.dirty = () => slideService.dirty;
@@ -56,21 +76,13 @@ function jsCastController ($scope, config, drawingService, slideService) {
       drawingService.drawSlide(slideService.current.slide);
    };
 
-   $scope.addRectangle = () => {
-      drawingService.newRectangle(obj => slideService.addObject(obj));
-   };
+   $scope.addRectangle = makeObjectAdder('newRectangle');
 
-   $scope.addEllipse = () => {
-      drawingService.newEllipse(obj => slideService.addObject(obj));
-   };
+   $scope.addEllipse = makeObjectAdder('newEllipse');
 
-   $scope.addTriangle = () => {
-      drawingService.newTriangle(obj => slideService.addObject(obj));
-   };
+   $scope.addTriangle = makeObjectAdder('newTriangle');
 
-   $scope.addSvgImage = () => {
-      drawingService.newSvgImage(obj => slideService.addObject(obj));
-   };
+   $scope.addSvgImage = makeObjectAdder('newSvgImage');
 
    $scope.$watch('revision()', () => {
       // console.log('Dirty watch');

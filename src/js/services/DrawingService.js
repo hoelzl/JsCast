@@ -20,7 +20,7 @@ var colors = ['yellow', 'red', 'blue', 'green', 'violet', 'magenta', 'cyan',
               'darkblue', 'gray', 'lightgray', 'darkgray'];
 
 function randomElement (array) {
-   return array[Math.round(Math.random() * array.length)];
+   return array[Math.floor(Math.random() * array.length)];
 }
 
 export function randomColor () {
@@ -157,6 +157,7 @@ export class DrawingService extends EventEmitter {
 
    newSvgImage (cont, parameters = {}) {
       parameters = mergeDefaultParameters(parameters, this.svgImageDefaults());
+      // console.log('newSvgImage:', parameters.url);
       // TODO: Need to introduce error handling, etc.
       fabric.loadSVGFromURL(parameters.url, (objects, options) => {
          var group = fabric.util.groupSVGElements(objects, options);
