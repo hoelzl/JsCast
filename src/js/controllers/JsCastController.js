@@ -56,7 +56,7 @@ function jsCastController ($scope, config, drawingService, slideService) {
    };
 
    $scope.addRectangle = () => {
-      console.log('adding rectangle');
+      // console.log('adding rectangle');
       var rect = drawingService.newRectangle();
       slideService.addObject(rect);
    };

@@ -4,7 +4,8 @@
 
 module _ from 'lodash';
 module domReady from 'domReady';
-module fabric from 'fabric'
+module fabric from 'fabric';
+module jQuery from 'jquery';
 
 import {app} from 'app';
 import {Slide} from 'Slide';
@@ -29,35 +30,38 @@ export class DrawingService extends EventEmitter {
       super();
       // console.log('Creating new DrawingService');
 
-      // TODO: Get these values from the configuration.
       var mainCanvas = document.getElementById('main-canvas');
       var containerDiv = document.getElementById('container-div');
       var mainDiv = document.getElementById('main-div');
-      var canvasHeight = 1000;
-      var canvasWidth = 1600;
+      // TODO: Get these values from the configuration.
+      var designHeight = 1000;
+      var designWidth = 1600;
       var fabricCanvas = new fabric.Canvas('main-canvas', {
-         height: canvasHeight,
-         width: canvasWidth
+         height: designHeight,
+         width:  designWidth
       });
 
       var defaultFontSize = 48;
       var divBorder = 50;
       if (mainCanvas) {
-         mainCanvas.height = canvasHeight;
-         mainCanvas.width = canvasWidth;
+         mainCanvas.height = designHeight;
+         mainCanvas.width = designWidth;
       }
       if (mainDiv) {
-         mainDiv.height = canvasHeight;
-         mainDiv.width = canvasWidth;
+         mainDiv.height = designHeight;
+         mainDiv.width = designWidth;
       }
 
       this._mainCanvas = mainCanvas;
       this._fabricCanvas = fabricCanvas;
       this._containerDiv = containerDiv;
       this._mainDiv = mainDiv;
-      this._canvasHeight = canvasHeight;
-      this._canvasWidth = canvasWidth;
-      this._defaultFontSize = defaultFontSize;
+      this._designHeight = designHeight;
+      this._designWidth = designWidth;
+      this._designFontSize = defaultFontSize;
+      this._scale = 1.0;
+      this._canvasHeight = designHeight;
+      this._canvasWidth = designWidth;
       this._divBorder = divBorder;
       this._currentSlide = null;
 
@@ -67,17 +71,26 @@ export class DrawingService extends EventEmitter {
 
       domReady(() => setTimeout(() => {
          this.invalidateLayout();
-      }));
+      }, 0));
    }
 
-   newRectangle () {
-      var rect = new fabric.Rect({ width: 200 * Math.random() + 50,
-                                height: 200 * Math.random() + 50,
-                                top: 200 * Math.random() + 50,
-                                left: 200 * Math.random() + 50,
-                                fill:       randomColor() });
-      rect.set('selectable', true);
-      return rect;
+   static mergeDefaultParameters (parameters) {
+      return jQuery.extend(parameters, { width: 200 * Math.random() + 50,
+         height: 200 * Math.random() + 50,
+         top: 200 * Math.random() + 50,
+         left: 200 * Math.random() + 50,
+         fill: randomColor() });
+   }
+
+   newObject (kind = fabric.Rect, parameters = {}) {
+      parameters = DrawingService.mergeDefaultParameters(parameters);
+      var obj = new kind(parameters);
+      obj.set('selectable', true);
+      return obj;
+   }
+
+   newRectangle (parameters = {}) {
+      return this.newObject(fabric.Rect, parameters);
    }
 
    drawSlide (slide = this._currentSlide) {
@@ -143,29 +156,30 @@ export class DrawingService extends EventEmitter {
       canvas = $(canvas);
 
       var maxDimensions = this.computeMaxDimensions(canvas);
-      var canvasHeight = this._canvasHeight;
-      var canvasWidth = this._canvasWidth;
+      var designHeight = this._designHeight;
+      var designWidth = this._designWidth;
 
-      var scaleHeight = maxDimensions.height / canvasHeight;
-      var scaleWidth = maxDimensions.width / canvasWidth;
+      var scaleHeight = maxDimensions.height / designHeight;
+      var scaleWidth = maxDimensions.width / designWidth;
       var scale = Math.min(scaleWidth, scaleHeight);
 
       return {
          scale:     scale,
+         designScale: scaleHeight / this._designHeight,
          maxHeight: maxDimensions.height,
          canvasCss: {
             position: 'absolute',
             top:      maxDimensions.top,
             left:     maxDimensions.left,
-            height: canvasHeight * scale,
-            width: canvasWidth * scale
+            height: designHeight * scale,
+            width: designWidth * scale
          },
          divCss:    {
             position: 'absolute',
             top: this._divBorder * scale,
             left: this._divBorder * scale,
-            height: (canvasHeight - 2 * this._divBorder) * scale,
-            width: (canvasWidth - 2 * this._divBorder) * scale
+            height: (designHeight - 2 * this._divBorder) * scale,
+            width: (designWidth - 2 * this._divBorder) * scale
          }}
    }
 
@@ -178,6 +192,8 @@ export class DrawingService extends EventEmitter {
          var scale = dimensions.scale;
 
          // console.log('resizing canvas', dimensions.height, dimensions.width);
+
+         this._scale = scale;
 
          // Set the dimensions of the main drawing area and position it absolutely.
 
@@ -194,7 +210,7 @@ export class DrawingService extends EventEmitter {
          css.top = 0;
          $mainCanvas.css(css);
          $mainDiv.css(divCss);
-         $mainDiv.css('font-size', this._defaultFontSize * scale);
+         $mainDiv.css('font-size', this._designFontSize * scale);
          this._fabricCanvas.setDimensions(css);
 
          // Adjust the inspector and slide list as well.
