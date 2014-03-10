@@ -18,6 +18,33 @@ export class Slide extends EventEmitter {
       this.id = currentId++;
    }
 
+   toObject () {
+      return { //
+         title: this.title,
+         _text: this.text,
+         objects: _.map(this.objects, obj => obj.toObject()),
+         thumbnail: this.thumbnail,
+         id: this.id
+      }
+   }
+
+   toJson () {
+      return JSON.stringify(this.toObject());
+   }
+
+   static fromObject(obj) {
+      var slide = new Slide(obj.title, obj._text, obj.thumbnail);
+      slide.id = obj.id;
+      fabric.util.enlivenObjects(obj.objects, objs => {
+         slide.objects = objs;
+      });
+      return slide;
+   }
+
+   static fromJson (json) {
+      return Slide.fromObject(JSON.parse(json));
+   }
+
    dirty () {
       this.emit('dirty', this);
    }
