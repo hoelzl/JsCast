@@ -390,12 +390,12 @@ export class DrawingService extends EventEmitter {
       // console.log('newSvgImage:', parameters.url);
       // TODO: Need to introduce error handling, etc.
       fabric.loadSVGFromURL(url, (objects, options) => {
-         var scale = this.scale;
+         // var scale = this.scale;
          options = mergeDefaultParameters(options, parameters);
          var group = fabric.util.groupSVGElements(objects, options);
-         group.scale(scale * (group.design.imageScale || 1));
-         group.setCoords();
-         cont(group);
+         // group.scale(scale * (group.design.imageScale || 1));
+         // group.setCoords();
+         group.cloneAsImage(cont);
       });
    }
 
