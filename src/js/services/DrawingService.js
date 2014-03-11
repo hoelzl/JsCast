@@ -118,6 +118,7 @@ export class DrawingService extends EventEmitter {
       this._designAttributes = ['originX', 'originY', 'scaleX', 'scaleY',
                                 'imageScale', 'flipX', 'flipY', 'angle', 'left',
                                 'top', 'height', 'width', 'rx', 'ry' ];
+      this._designUpdateEnabled = true;
 
       document.defaultView.addEventListener('resize', () => {
          this.invalidateLayout();
@@ -150,53 +151,55 @@ export class DrawingService extends EventEmitter {
          }
       }
 
-      if (object.type === 'group') {
-         _.forEach(object.objects, obj => {
-            this.setDesignFromCurrent(obj);
-         });
-      } else {
-         var scale = this.scale;
-         var design = object.design;
+      if (this._designUpdateEnabled) {
+         if (object.type === 'group') {
+            _.forEach(object.objects, obj => {
+               this.setDesignFromCurrent(obj);
+            });
+         } else {
+            var scale = this.scale;
+            var design = object.design;
 
-         // console.log('setDesignFromCurrent()', object, scale);
-         _.forEach(this._designAttributes, (key) => {
-            // console.log('Data:', key, 'design', design[key], 'object',
-            //             object[key], 'scale', scale);
-            var oldValue = design[key];
-            var newValue;
-            switch (key) {
-               case 'left':
-               case 'top':
-               case 'height':
-               case 'width':
-               case 'rx':
-               case 'ry':
-                  newValue = object.get(key) / scale;
-                  break;
-               case 'imageScale':
-                  if (object.type === 'path-group') {
-                     newValue = object.get('scaleX') / scale;
-                  } else {
-                     newValue = 1;
-                  }
-                  break;
-               case 'scaleX':
-               case 'scaleY':
-                  if (object.type === 'path-group') {
-                     newValue = object.get(key) / (scale * design.imageScale);
-                  } else {
+            // console.log('setDesignFromCurrent()', object, scale);
+            _.forEach(this._designAttributes, (key) => {
+               // console.log('Data:', key, 'design', design[key], 'object',
+               //             object[key], 'scale', scale);
+               var oldValue = design[key];
+               var newValue;
+               switch (key) {
+                  case 'left':
+                  case 'top':
+                  case 'height':
+                  case 'width':
+                  case 'rx':
+                  case 'ry':
+                     newValue = object.get(key) / scale;
+                     break;
+                  case 'imageScale':
+                     if (object.type === 'path-group') {
+                        newValue = object.get('scaleX') / scale;
+                     } else {
+                        newValue = 1;
+                     }
+                     break;
+                  case 'scaleX':
+                  case 'scaleY':
+                     if (object.type === 'path-group') {
+                        newValue = object.get(key) / (scale * design.imageScale);
+                     } else {
+                        newValue = object.get(key);
+                     }
+                     break;
+                  default:
                      newValue = object.get(key);
-                  }
-                  break;
-               default:
-                  newValue = object.get(key);
-            }
-            // console.log('Data (after computation):', key, oldValue, newValue);
-            if (updateValue(oldValue, newValue)) {
-               // console.log(`Changing ${key} from ${oldValue} to ${newValue}`);
-               design[key] = newValue;
-            }
-         });
+               }
+               // console.log('Data (after computation):', key, oldValue, newValue);
+               if (updateValue(oldValue, newValue)) {
+                  // console.log(`Changing ${key} from ${oldValue} to ${newValue}`);
+                  design[key] = newValue;
+               }
+            });
+         }
       }
    }
 
@@ -489,6 +492,7 @@ export class DrawingService extends EventEmitter {
          if (activeObject) {
             this.setDesignFromCurrent(activeObject);
          }
+         this._designUpdateEnabled = false;
 
          // Set the dimensions of the main drawing area and position it absolutely.
 
@@ -520,6 +524,7 @@ export class DrawingService extends EventEmitter {
          // Adjust the inspector and slide list as well.
          $('#slide-list').height(dimensions.maxHeight);
          $('#inspector').height(dimensions.maxHeight);
+         this._designUpdateEnabled = true;
          this.emit('canvas-resized');
       }
    }
