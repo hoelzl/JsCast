@@ -9,6 +9,8 @@ import Slide from 'Slide';
 
 // console.log('loading JsCastController');
 
+var resizeTimeoutId = null;
+
 function jsCastController ($scope, config, drawingService, slideService) {
 
    function makeObjectAdder (creator) {
@@ -19,6 +21,13 @@ function jsCastController ($scope, config, drawingService, slideService) {
          });
       }
    }
+
+   var resizeHandler = () => {
+      _.each(slideService.slides, slide => {
+         // console.log('Resizing', slide, slide.title);
+         drawingService.setSlideCurrentFromDesign(slide);
+      })
+   };
 
    // TODO: Maybe this should be a dedicated service?
    $scope.safeApply = (fn) => {
@@ -34,6 +43,8 @@ function jsCastController ($scope, config, drawingService, slideService) {
       }
    };
 
+   drawingService.on('canvas-resized', () => $scope.safeApply());
+
    $scope.appName = config.appName;
 
    $scope.dirty = () => slideService.dirty;
@@ -48,6 +59,9 @@ function jsCastController ($scope, config, drawingService, slideService) {
       set: (newSlide) => slideService.current = newSlide
    });
 
+   $scope.resizeTick = () => {
+      return drawingService.resizeTick();
+   };
    $scope.revision = () => {
       return slideService.revision();
    };
@@ -88,6 +102,16 @@ function jsCastController ($scope, config, drawingService, slideService) {
    $scope.addSvgImage = makeObjectAdder('newSvgImage');
 
    $scope.addPngImage = makeObjectAdder('newPngImage');
+
+   $scope.$watch('resizeTick()', () => {
+      // console.log('Need resize');
+      if (resizeTimeoutId) {
+         // console.log('Clearing old resize timeout', resizeTimeoutId);
+         clearTimeout(resizeTimeoutId);
+      }
+      // console.log('Setting new resize timeout');
+      resizeTimeoutId = setTimeout(resizeHandler, 1);
+   });
 
    $scope.$watch('revision()', () => {
       // console.log('Dirty watch');

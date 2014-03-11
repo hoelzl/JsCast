@@ -118,6 +118,7 @@ export class DrawingService extends EventEmitter {
       // this._canvasWidth = designWidth;
       this._divBorder = divBorder;
       this._currentSlide = null;
+      this._resizeTick = 0;
 
       // The attributes stored in design objects.  Their order is important for
       // scale computations of images ('imageScale' has to succeed 'scaleX').
@@ -133,6 +134,10 @@ export class DrawingService extends EventEmitter {
       domReady(() => setTimeout(() => {
          this.invalidateLayout();
       }, 0));
+   }
+
+   resizeTick () {
+      return this._resizeTick;
    }
 
    updateDesignHandler (options) {
@@ -220,7 +225,7 @@ export class DrawingService extends EventEmitter {
       cont(obj);
    }
 
-   setCurrentFromDesign (object) {
+   setObjectCurrentFromDesign (object) {
       // console.log('Setting current data from design:', object.type);
       var scale = this.scale;
       var design = object.design;
@@ -257,6 +262,15 @@ export class DrawingService extends EventEmitter {
       if (object.type === 'path-group') {
          object.scale(scale * (design.imageScale || 1));
          // object.setCoords();
+      }
+   }
+
+
+   setSlideCurrentFromDesign (slide = this._currentSlide) {
+      var objects = slide.objects;
+      // console.log('resizeCanvas(): updating objects', objects);
+      for (var i = 0, len = objects.length; i < len; i++) {
+         this.setObjectCurrentFromDesign(objects[i]);
       }
    }
 
@@ -413,7 +427,7 @@ export class DrawingService extends EventEmitter {
             design.scaleX = design.scaleX / 4;
             design.scaleY = design.scaleY / 4;
          }
-         this.setCurrentFromDesign(image);
+         this.setObjectCurrentFromDesign(image);
          cont(image);
       });
    }
@@ -556,20 +570,18 @@ export class DrawingService extends EventEmitter {
          fabricCanvas.setDimensions(css);
 
          if (this._currentSlide) {
-            var objects = this._currentSlide.objects;
-            // console.log('resizeCanvas(): updating objects', objects);
-            for (var i = 0, len = objects.length; i < len; i++) {
-               this.setCurrentFromDesign(objects[i]);
-            }
+            this.setSlideCurrentFromDesign();
          }
 
          // Adjust the inspector and slide list as well.
          $('#slide-list').height(dimensions.maxHeight);
          $('#inspector').height(dimensions.maxHeight);
          this._designUpdateEnabled = true;
+         this._resizeTick++;
          this.emit('canvas-resized');
       }
    }
+
 
    invalidateLayout () {
       // console.log('invalidateLayout()')
