@@ -61,20 +61,33 @@ export class DrawingService extends EventEmitter {
       });
 
       fabricCanvas.on('object:modified', options => {
-         this.updateDesignListener(options);
+         this.updateDesignHandler(options);
       });
 
-      fabricCanvas.on('object:moving', options => {
-         this.updateDesignListener(options);
-      });
+      fabricCanvas.on('before:selection:cleared', options => {
+         if (options && options.target) {
+            var target = options.target;
+            // console.log('before:selection:cleared:', target);
+            setTimeout(() => {
+               this.setDesignFromCurrent(target);
+            })
+         }
+      }, 0);
 
-      fabricCanvas.on('object:scaling', options => {
-         this.updateDesignListener(options);
-      });
 
-      fabricCanvas.on('object:rotating', options => {
-         this.updateDesignListener(options);
-      });
+      /*
+       fabricCanvas.on('object:moving', options => {
+       this.updateDesignHandler(options);
+       });
+
+       fabricCanvas.on('object:scaling', options => {
+       this.updateDesignHandler(options);
+       });
+
+       fabricCanvas.on('object:rotating', options => {
+       this.updateDesignHandler(options);
+       });
+       */
 
       var defaultFontSize = 48;
       var divBorder = 50;
@@ -100,8 +113,11 @@ export class DrawingService extends EventEmitter {
       this._divBorder = divBorder;
       this._currentSlide = null;
 
-      this._attributes = ['left', 'top', 'height', 'width', 'rx', 'ry',
-                          'scaleX', 'scaleY', 'angle'];
+      // The attributes stored in design objects.  Their order is important for
+      // scale computations of images ('imageScale' has to succeed 'scaleX').
+      this._designAttributes = ['originX', 'originY', 'scaleX', 'scaleY',
+                                'imageScale', 'flipX', 'flipY', 'angle', 'left',
+                                'top', 'height', 'width', 'rx', 'ry' ];
 
       document.defaultView.addEventListener('resize', () => {
          this.invalidateLayout();
@@ -112,27 +128,38 @@ export class DrawingService extends EventEmitter {
       }, 0));
    }
 
-   updateDesignListener (options) {
+   updateDesignHandler (options) {
       if (options && options.target) {
          this.setDesignFromCurrent(options.target);
       } else {
-         console.log('Modified unknown object:', options);
+         // console.log('Modified unknown object:', options);
       }
    }
 
    setDesignFromCurrent (object) {
-      console.log('Setting design from current data', object.type);
+      // console.log('Setting design from current data', object.type);
+
+      function updateValue (oldValue, newValue) {
+         if (oldValue === undefined || oldValue === null) {
+            return true
+         } else if (typeof newValue === 'number') {
+            return !isNaN(newValue) &&
+                   Math.abs(oldValue - newValue) > MIN_CHANGE;
+         } else {
+            return oldValue !== newValue;
+         }
+      }
 
       if (object.type === 'group') {
          _.forEach(object.objects, obj => {
-            // this.setDesignFromCurrent(obj);
+            this.setDesignFromCurrent(obj);
          });
       } else {
          var scale = this.scale;
          var design = object.design;
 
          // console.log('setDesignFromCurrent()', object, scale);
-         _.forEach(this._attributes, (key) => {
+         _.forEach(this._designAttributes, (key) => {
             // console.log('Data:', key, 'design', design[key], 'object',
             //             object[key], 'scale', scale);
             var oldValue = design[key];
@@ -146,10 +173,17 @@ export class DrawingService extends EventEmitter {
                case 'ry':
                   newValue = object.get(key) / scale;
                   break;
+               case 'imageScale':
+                  if (object.type === 'path-group') {
+                     newValue = object.get('scaleX') / scale;
+                  } else {
+                     newValue = 1;
+                  }
+                  break;
                case 'scaleX':
                case 'scaleY':
                   if (object.type === 'path-group') {
-                     newValue = object.get(key) / scale;
+                     newValue = object.get(key) / (scale * design.imageScale);
                   } else {
                      newValue = object.get(key);
                   }
@@ -158,8 +192,8 @@ export class DrawingService extends EventEmitter {
                   newValue = object.get(key);
             }
             // console.log('Data (after computation):', key, oldValue, newValue);
-            if (!oldValue || Math.abs(oldValue - newValue) > MIN_CHANGE) {
-               console.log(`Changing ${key} from ${oldValue} to ${newValue}`);
+            if (updateValue(oldValue, newValue)) {
+               // console.log(`Changing ${key} from ${oldValue} to ${newValue}`);
                design[key] = newValue;
             }
          });
@@ -177,10 +211,10 @@ export class DrawingService extends EventEmitter {
    }
 
    setCurrentFromDesign (object) {
-      console.log('Setting current data from design:', object.type);
+      // console.log('Setting current data from design:', object.type);
       var scale = this.scale;
       var design = object.design;
-      _.forEach(this._attributes, (key) => {
+      _.forEach(this._designAttributes, (key) => {
          var oldValue = object[key];
          var newValue;
          switch (key) {
@@ -203,14 +237,16 @@ export class DrawingService extends EventEmitter {
             default:
                newValue = design[key];
          }
-         if (newValue !== undefined &&
-             (oldValue === undefined || Math.abs(oldValue - newValue) > MIN_CHANGE)) {
-            console.log(`Changing ${key} from ${oldValue} to ${newValue}`);
+         if (newValue !== undefined && (oldValue === undefined ||
+                                        Math.abs(oldValue - newValue) >
+                                        MIN_CHANGE)) {
+            // console.log(`Changing ${key} from ${oldValue} to ${newValue}`);
             object.set(key, newValue);
          }
       });
       if (object.type === 'path-group') {
-         object.scale(scale);
+         object.scale(scale * (design.imageScale || 1));
+         // object.setCoords();
       }
    }
 
@@ -236,10 +272,7 @@ export class DrawingService extends EventEmitter {
                                           top:    [200, 0],
                                           left:   [300, 0],
                                           rx:     [-40, 0],
-                                          ry:     [-40, 0],
-                                          scaleX: [0, 1],
-                                          scaleY: [0, 1],
-                                          angle:  [0, 0]
+                                          ry:     [-40, 0]
                                        });
       design.top += design.height / 2;
       design.left += design.width / 2;
@@ -265,15 +298,10 @@ export class DrawingService extends EventEmitter {
 
    ellipseDefaults () {
       var design = this.generateDesign({
-                                          height: [400, 100],
-                                          width:  [600, 200],
-                                          top:    [300, 0],
-                                          left:   [400, 0],
-                                          rx:     [200, 100],
-                                          ry:     [200, 100],
-                                          scaleX: [0, 1],
-                                          scaleY: [0, 1],
-                                          angle:  [0, 0]
+                                          top:  [400, 0],
+                                          left: [600, 0],
+                                          rx:   [400, 100],
+                                          ry:   [200, 100]
                                        });
       var scale = this.scale;
 
@@ -296,10 +324,7 @@ export class DrawingService extends EventEmitter {
                                           height: [600, 100],
                                           width:  [800, 200],
                                           top:    [400, 0],
-                                          left:   [600, 0],
-                                          scaleX: [0, 1],
-                                          scaleY: [0, 1],
-                                          angle:  [0, 0]
+                                          left:   [600, 0]
                                        });
       var scale = this.scale;
 
@@ -321,18 +346,18 @@ export class DrawingService extends EventEmitter {
 
    svgImageDefaults () {
       var design = this.generateDesign({
-                                          top:    [200, 0],
-                                          left:   [300, 0],
-                                          scaleX: [0, 1],
-                                          scaleY: [0, 1],
-                                          angle:  [0, 0]
+                                          top:        [400, 0],
+                                          left:       [600, 0],
+                                          imageScale: [2.5, 0.5]
                                        });
       var scale = this.scale;
 
       return {
          design: design,
          top: design.top * scale,
-         left: design.left * scale
+         left: design.left * scale,
+         scaleX: design.imageScale * scale,
+         scaleY: design.imageScale * scale
       };
    }
 
@@ -344,7 +369,8 @@ export class DrawingService extends EventEmitter {
          var scale = this.scale;
          options = mergeDefaultParameters(options, parameters);
          var group = fabric.util.groupSVGElements(objects, options);
-         group.scale(scale);
+         group.scale(scale * (group.design.imageScale || 1));
+         group.setCoords();
          cont(group);
       });
    }
@@ -451,6 +477,19 @@ export class DrawingService extends EventEmitter {
 
          this.scale = scale;
 
+         var fabricCanvas = this._fabricCanvas;
+         // console.log('Discarding active group and object');
+         var activeGroup = fabricCanvas.getActiveGroup();
+         var activeObject = fabricCanvas.getActiveObject();
+         fabricCanvas.discardActiveGroup();
+         fabricCanvas.discardActiveObject();
+         if (activeGroup) {
+            this.setDesignFromCurrent(activeGroup);
+         }
+         if (activeObject) {
+            this.setDesignFromCurrent(activeObject);
+         }
+
          // Set the dimensions of the main drawing area and position it absolutely.
 
          mainCanvas.height = css.height;
@@ -468,9 +507,6 @@ export class DrawingService extends EventEmitter {
          $mainDiv.css(divCss);
          $mainDiv.css('font-size', this._designFontSize * scale);
 
-         var fabricCanvas = this._fabricCanvas;
-         fabricCanvas.discardActiveGroup();
-         fabricCanvas.discardActiveObject();
          fabricCanvas.setDimensions(css);
 
          if (this._currentSlide) {
