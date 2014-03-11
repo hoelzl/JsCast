@@ -84,6 +84,8 @@ function jsCastController ($scope, config, drawingService, slideService) {
 
    $scope.addSvgImage = makeObjectAdder('newSvgImage');
 
+   $scope.addPngImage = makeObjectAdder('newPngImage');
+
    $scope.$watch('revision()', () => {
       // console.log('Dirty watch');
       drawingService.drawSlide(slideService.current.slide);

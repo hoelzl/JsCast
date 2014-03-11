@@ -10,3 +10,6 @@ accessible.  So the exact licensing status of the images still needs to be
 determined.
 
 TODO: Add a license file for the images!
+
+The PNG images are from [Open Clipart](https://openclipart.org) and in the
+public domain.

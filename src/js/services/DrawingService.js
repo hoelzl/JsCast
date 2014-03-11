@@ -35,6 +35,11 @@ export function randomSvgImage () {
    return randomElement(svgImages);
 }
 
+var pngImages = ['assets/football.png', 'assets/magnifying-glass.png'];
+
+export function randomPngImage () {
+   return randomElement(pngImages);
+}
 
 function mergeDefaultParameters (parameters, defaults) {
    return jQuery.extend(parameters || {}, defaults);
@@ -50,14 +55,14 @@ export class DrawingService extends EventEmitter {
 
       var mainCanvas = document.getElementById('main-canvas');
       var containerDiv = document.getElementById('container-div');
+      var backgroundDiv = document.getElementById('background-div');
       var mainDiv = document.getElementById('main-div');
       // TODO: Get these values from the configuration.
       var designHeight = 1000;
       var designWidth = 1600;
       var fabricCanvas = new fabric.Canvas('main-canvas', {
          height:          designHeight,
-         width:           designWidth,
-         backgroundColor: 'white'
+         width:           designWidth
       });
 
       fabricCanvas.on('object:modified', options => {
@@ -103,6 +108,7 @@ export class DrawingService extends EventEmitter {
       this._mainCanvas = mainCanvas;
       this._fabricCanvas = fabricCanvas;
       this._containerDiv = containerDiv;
+      this._backgroundDiv = backgroundDiv;
       this._mainDiv = mainDiv;
       this._designHeight = designHeight;
       this._designWidth = designWidth;
@@ -185,7 +191,8 @@ export class DrawingService extends EventEmitter {
                   case 'scaleX':
                   case 'scaleY':
                      if (object.type === 'path-group') {
-                        newValue = object.get(key) / (scale * design.imageScale);
+                        newValue = object.get(key) /
+                                   (scale * design.imageScale);
                      } else {
                         newValue = object.get(key);
                      }
@@ -378,6 +385,39 @@ export class DrawingService extends EventEmitter {
       });
    }
 
+   pngImageDefaults () {
+      var design = this.generateDesign({
+                                          top:    [200, 0],
+                                          left:   [300, 0],
+                                          scaleX: [0.3, 0.3]
+                                       });
+      design.scaleY = design.scaleX;
+      var scale = this.scale;
+
+      return {
+         design: design,
+         top: design.top * scale,
+         left: design.left * scale,
+         scaleX: design.scaleX,
+         scaleY: design.scaleY
+      }
+   }
+
+   newPngImage (cont, url = randomPngImage(), parameters = {}) {
+      parameters = mergeDefaultParameters(this.pngImageDefaults());
+      fabric.Image.fromURL(url, image => {
+         image.set(parameters);
+         console.log(image);
+         if (image.width && image.width > 600) {
+            var design = parameters.design;
+            design.scaleX = design.scaleX / 4;
+            design.scaleY = design.scaleY / 4;
+         }
+         this.setCurrentFromDesign(image);
+         cont(image);
+      });
+   }
+
    drawSlide (slide = this._currentSlide) {
       // console.log('drawContents called');
       this._currentSlide = slide;
@@ -499,6 +539,7 @@ export class DrawingService extends EventEmitter {
          mainCanvas.height = css.height;
          mainCanvas.width = css.width;
          var $containerDiv = $(this._containerDiv);
+         var $backgroundDiv = $(this._backgroundDiv);
          var $mainCanvas = $(mainCanvas);
          var $mainDiv = $(this._mainDiv);
          $containerDiv.css(css);
@@ -508,6 +549,7 @@ export class DrawingService extends EventEmitter {
          css.left = 0;
          css.top = 0;
          $mainCanvas.css(css);
+         $backgroundDiv.css(css);
          $mainDiv.css(divCss);
          $mainDiv.css('font-size', this._designFontSize * scale);
 
