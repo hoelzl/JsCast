@@ -164,7 +164,7 @@ export class DrawingService extends EventEmitter {
             });
          } else {
             var scale = this.scale;
-            var design = object.design;
+            var design = object.design = _.clone(object.design) || {};
 
             // console.log('setDesignFromCurrent()', object, scale);
             _.forEach(this._designAttributes, (key) => {
@@ -407,7 +407,7 @@ export class DrawingService extends EventEmitter {
       parameters = mergeDefaultParameters(this.pngImageDefaults());
       fabric.Image.fromURL(url, image => {
          image.set(parameters);
-         console.log(image);
+         // console.log('New PNG image', image);
          if (image.width && image.width > 600) {
             var design = parameters.design;
             design.scaleX = design.scaleX / 4;

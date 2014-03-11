@@ -51,7 +51,7 @@ export class SlideService {
    }
 
    dirty () {
-      // console.log('dirty()');
+      // console.log('dirty()', this.current.slide);
       this._revision++;
    }
 
@@ -89,11 +89,11 @@ export class SlideService {
       return newSlide;
    }
 
-   duplicateSlide () {
+   duplicateSlide (callback) {
       var originalSlide = this.current.slide;
       var newSlide;
       if (originalSlide) {
-         newSlide = originalSlide.duplicate();
+         newSlide = originalSlide.duplicate(callback);
       } else {
          newSlide = new Slide('Failed duplicate attempt');
       }

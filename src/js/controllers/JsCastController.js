@@ -20,13 +20,16 @@ function jsCastController ($scope, config, drawingService, slideService) {
       }
    }
 
+   // TODO: Maybe this should be a dedicated service?
    $scope.safeApply = (fn) => {
       var phase = $scope.$root.$$phase;
       if (phase == '$apply' || phase == '$digest') {
          if (fn && typeof(fn) === 'function') {
+            // console.log('Not calling apply');
             fn();
          }
       } else {
+         // console.log('Calling apply');
          $scope.$apply(fn);
       }
    };
@@ -52,7 +55,7 @@ function jsCastController ($scope, config, drawingService, slideService) {
       return slideService.newSlide();
    };
    $scope.duplicateSlide = () => {
-      return slideService.duplicateSlide();
+      return slideService.duplicateSlide($scope.safeApply);
    };
    $scope.deleteSlide = () => {
       return slideService.deleteSlide();

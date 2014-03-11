@@ -62,7 +62,7 @@ export class Slide extends EventEmitter {
       this.objects.push(obj);
    }
 
-   duplicate () {
+   duplicate (callback) {
       var objects = this.objects;
       // console.log('duplicate()', this, objects, objects.length);
 
@@ -70,18 +70,24 @@ export class Slide extends EventEmitter {
       // async, and the result for async objects is undefined, whereas the
       // callback is not invoked for objects for which clone is synchronous.
       var clonedObjects = [];
+      var newSlide = new Slide(`Duplicate of ${this.title}`, this.text, this.thumbnail,
+                               clonedObjects);
 
       for (var i = 0, len = objects.length; i < len; i++) {
          var newObj = objects[i].clone(c => {
+            // console.log('Cloned', c);
             clonedObjects.push(c);
-         });
+            newSlide.dirty();
+            if (callback) {
+               callback();
+            }
+         }, ['design']);
          if (newObj) {
             clonedObjects.push(newObj);
          }
       }
 
-      return new Slide(`Duplicate of ${this.title}`, this.text, this.thumbnail,
-                       clonedObjects);
+      return  newSlide;
    }
 }
 
