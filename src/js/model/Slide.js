@@ -22,7 +22,7 @@ export class Slide extends EventEmitter {
       return { //
          title: this.title,
          _text: this.text,
-         objects: _.map(this.objects, obj => obj.toObject()),
+         objects: _.map(this.objects, obj => obj.toObject(['design'])),
          thumbnail: this.thumbnail,
          id: this.id
       }

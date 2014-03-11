@@ -21,10 +21,12 @@
     <!--
       And fix the body offset so that the navbar doesn't hide the top of the contents.
       This has to happen after the bootstrap.css style sheet is loaded.
+      Also set body color for the time being, to make canvas dimensions visible.
      -->
     <style>
         body {
             padding-top: 60px;
+            background-color: lightgray;
         }
     </style>
 </head>
@@ -183,7 +185,7 @@
             <div id="inspector-slide-objects"
                  class="col-md-8">
             <span data-ng-repeat="obj in current.slide.objects">
-                {{obj.type}}
+                {{obj.type}}({{obj.left}}, {{obj.top}})
             </span>
             </div>
         </div>

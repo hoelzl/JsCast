@@ -40,6 +40,8 @@ function mergeDefaultParameters (parameters, defaults) {
    return jQuery.extend(parameters || {}, defaults);
 }
 
+var MIN_CHANGE = 1e-8;
+
 export class DrawingService extends EventEmitter {
 
    constructor () {
@@ -53,8 +55,25 @@ export class DrawingService extends EventEmitter {
       var designHeight = 1000;
       var designWidth = 1600;
       var fabricCanvas = new fabric.Canvas('main-canvas', {
-         height: designHeight,
-         width:  designWidth
+         height:          designHeight,
+         width:           designWidth,
+         backgroundColor: 'white'
+      });
+
+      fabricCanvas.on('object:modified', options => {
+         this.updateDesignListener(options);
+      });
+
+      fabricCanvas.on('object:moving', options => {
+         this.updateDesignListener(options);
+      });
+
+      fabricCanvas.on('object:scaling', options => {
+         this.updateDesignListener(options);
+      });
+
+      fabricCanvas.on('object:rotating', options => {
+         this.updateDesignListener(options);
       });
 
       var defaultFontSize = 48;
@@ -75,11 +94,14 @@ export class DrawingService extends EventEmitter {
       this._designHeight = designHeight;
       this._designWidth = designWidth;
       this._designFontSize = defaultFontSize;
-      this._scale = 1.0;
-      this._canvasHeight = designHeight;
-      this._canvasWidth = designWidth;
+      this.scale = 1.0;
+      // this._canvasHeight = designHeight;
+      // this._canvasWidth = designWidth;
       this._divBorder = divBorder;
       this._currentSlide = null;
+
+      this._attributes = ['left', 'top', 'height', 'width', 'rx', 'ry',
+                          'scaleX', 'scaleY', 'angle'];
 
       document.defaultView.addEventListener('resize', () => {
          this.invalidateLayout();
@@ -90,24 +112,151 @@ export class DrawingService extends EventEmitter {
       }, 0));
    }
 
+   updateDesignListener (options) {
+      if (options && options.target) {
+         this.setDesignFromCurrent(options.target);
+      } else {
+         console.log('Modified unknown object:', options);
+      }
+   }
+
+   setDesignFromCurrent (object) {
+      console.log('Setting design from current data', object.type);
+
+      if (object.type === 'group') {
+         _.forEach(object.objects, obj => {
+            // this.setDesignFromCurrent(obj);
+         });
+      } else {
+         var scale = this.scale;
+         var design = object.design;
+
+         // console.log('setDesignFromCurrent()', object, scale);
+         _.forEach(this._attributes, (key) => {
+            // console.log('Data:', key, 'design', design[key], 'object',
+            //             object[key], 'scale', scale);
+            var oldValue = design[key];
+            var newValue;
+            switch (key) {
+               case 'left':
+               case 'top':
+               case 'height':
+               case 'width':
+               case 'rx':
+               case 'ry':
+                  newValue = object.get(key) / scale;
+                  break;
+               case 'scaleX':
+               case 'scaleY':
+                  if (object.type === 'path-group') {
+                     newValue = object.get(key) / scale;
+                  } else {
+                     newValue = object.get(key);
+                  }
+                  break;
+               default:
+                  newValue = object.get(key);
+            }
+            // console.log('Data (after computation):', key, oldValue, newValue);
+            if (!oldValue || Math.abs(oldValue - newValue) > MIN_CHANGE) {
+               console.log(`Changing ${key} from ${oldValue} to ${newValue}`);
+               design[key] = newValue;
+            }
+         });
+      }
+   }
+
    newObject (cont, kind = fabric.Rect, parameters = {}, defaults = {}) {
       parameters = mergeDefaultParameters(parameters, defaults);
       var obj = new kind(parameters);
-      obj.set('selectable', true);
+      // This is to make sure that inconsistent values in the design are updated
+      // before the object is passed to the application (e.g., rx != ry for
+      // rectangles).
+      this.setDesignFromCurrent(obj);
       cont(obj);
    }
 
-   rectangleDefaults () {
-      var result = {
-         width: 200 * Math.random() + 50,
-         height: 200 * Math.random() + 50,
-         top: 200 * Math.random() + 50,
-         left: 200 * Math.random() + 50,
-         rx:   Math.random() > 0.5 ? 20 * Math.random() : 0,
-         ry:   Math.random() > 0.5 ? 20 * Math.random() : 0,
-         fill: randomColor(colors)
-      };
+   setCurrentFromDesign (object) {
+      console.log('Setting current data from design:', object.type);
+      var scale = this.scale;
+      var design = object.design;
+      _.forEach(this._attributes, (key) => {
+         var oldValue = object[key];
+         var newValue;
+         switch (key) {
+            case 'left':
+            case 'top':
+            case 'height':
+            case 'width':
+            case 'rx':
+            case 'ry':
+               newValue = design[key] * scale;
+               break;
+            case 'scaleX':
+            case 'scaleY':
+               if (object.type === 'path-group') {
+                  newValue = design[key];
+               } else {
+                  newValue = object[key];
+               }
+               break;
+            default:
+               newValue = design[key];
+         }
+         if (newValue !== undefined &&
+             (oldValue === undefined || Math.abs(oldValue - newValue) > MIN_CHANGE)) {
+            console.log(`Changing ${key} from ${oldValue} to ${newValue}`);
+            object.set(key, newValue);
+         }
+      });
+      if (object.type === 'path-group') {
+         object.scale(scale);
+      }
+   }
+
+   generateDesign (parameters) {
+      var result = {};
+      for (var key in parameters) {
+         var value = parameters[key];
+         if (value[0] >= 0) {
+            result[key] = value[0] * Math.random() + value[1];
+         } else {
+            value[0] = -value[0];
+            result[key] = Math.random() > 0.5 ?
+               value[0] * Math.random() + value[1] : 0;
+         }
+      }
       return result;
+   }
+
+   rectangleDefaults () {
+      var design = this.generateDesign({
+                                          height: [400, 100],
+                                          width:  [600, 200],
+                                          top:    [200, 0],
+                                          left:   [300, 0],
+                                          rx:     [-40, 0],
+                                          ry:     [-40, 0],
+                                          scaleX: [0, 1],
+                                          scaleY: [0, 1],
+                                          angle:  [0, 0]
+                                       });
+      design.top += design.height / 2;
+      design.left += design.width / 2;
+      var scale = this.scale;
+
+      return {
+         design: design,
+         height: design.height * scale,
+         width: design.width * scale,
+         top: design.top * scale,
+         left: design.left * scale,
+         rx: design.rx * scale,
+         ry: design.ry * scale,
+         scaleX: design.scaleX,
+         scaleY: design.scaleY,
+         fill:   randomColor(colors)
+      };
    }
 
    newRectangle (cont, parameters = {}) {
@@ -115,13 +264,27 @@ export class DrawingService extends EventEmitter {
    }
 
    ellipseDefaults () {
-      var result = {
-         top: 200 * Math.random() + 50,
-         left: 200 * Math.random() + 50,
-         rx: 100 * Math.random() + 50,
-         ry: 100 * Math.random() + 50,
-         fill: randomColor(colors) };
-      return result;
+      var design = this.generateDesign({
+                                          height: [400, 100],
+                                          width:  [600, 200],
+                                          top:    [300, 0],
+                                          left:   [400, 0],
+                                          rx:     [200, 100],
+                                          ry:     [200, 100],
+                                          scaleX: [0, 1],
+                                          scaleY: [0, 1],
+                                          angle:  [0, 0]
+                                       });
+      var scale = this.scale;
+
+      return {
+         design: design,
+         top: design.top * scale,
+         left: design.left * scale,
+         rx: design.rx * scale,
+         ry: design.ry * scale,
+         fill:   randomColor(colors)
+      };
    }
 
    newEllipse (cont, parameters = {}) {
@@ -129,14 +292,25 @@ export class DrawingService extends EventEmitter {
    }
 
    triangleDefaults () {
-      var result = {
-         width: 200 * Math.random() + 50,
-         height: 200 * Math.random() + 50,
-         top: 200 * Math.random() + 50,
-         left: 200 * Math.random() + 50,
-         fill: randomColor(colors) };
+      var design = this.generateDesign({
+                                          height: [600, 100],
+                                          width:  [800, 200],
+                                          top:    [400, 0],
+                                          left:   [600, 0],
+                                          scaleX: [0, 1],
+                                          scaleY: [0, 1],
+                                          angle:  [0, 0]
+                                       });
+      var scale = this.scale;
 
-      return result;
+      return {
+         design: design,
+         height: design.height * scale,
+         width: design.width * scale,
+         top: design.top * scale,
+         left: design.left * scale,
+         fill:   randomColor(colors)
+      };
    }
 
    newTriangle (cont, parameters = {}) {
@@ -144,23 +318,33 @@ export class DrawingService extends EventEmitter {
                      this.triangleDefaults());
    }
 
-   svgImageDefaults () {
-      var result = {
-         url: randomSvgImage(),
-         width: 200 * Math.random() + 50,
-         height: 200 * Math.random() + 50,
-         top: 200 * Math.random() + 50,
-         left: 200 * Math.random() + 50 };
 
-      return result;
+   svgImageDefaults () {
+      var design = this.generateDesign({
+                                          top:    [200, 0],
+                                          left:   [300, 0],
+                                          scaleX: [0, 1],
+                                          scaleY: [0, 1],
+                                          angle:  [0, 0]
+                                       });
+      var scale = this.scale;
+
+      return {
+         design: design,
+         top: design.top * scale,
+         left: design.left * scale
+      };
    }
 
-   newSvgImage (cont, parameters = {}) {
+   newSvgImage (cont, url = randomSvgImage(), parameters = {}) {
       parameters = mergeDefaultParameters(parameters, this.svgImageDefaults());
       // console.log('newSvgImage:', parameters.url);
       // TODO: Need to introduce error handling, etc.
-      fabric.loadSVGFromURL(parameters.url, (objects, options) => {
+      fabric.loadSVGFromURL(url, (objects, options) => {
+         var scale = this.scale;
+         options = mergeDefaultParameters(options, parameters);
          var group = fabric.util.groupSVGElements(objects, options);
+         group.scale(scale);
          cont(group);
       });
    }
@@ -265,7 +449,7 @@ export class DrawingService extends EventEmitter {
 
          // console.log('resizing canvas', dimensions.height, dimensions.width);
 
-         this._scale = scale;
+         this.scale = scale;
 
          // Set the dimensions of the main drawing area and position it absolutely.
 
@@ -283,7 +467,19 @@ export class DrawingService extends EventEmitter {
          $mainCanvas.css(css);
          $mainDiv.css(divCss);
          $mainDiv.css('font-size', this._designFontSize * scale);
-         this._fabricCanvas.setDimensions(css);
+
+         var fabricCanvas = this._fabricCanvas;
+         fabricCanvas.discardActiveGroup();
+         fabricCanvas.discardActiveObject();
+         fabricCanvas.setDimensions(css);
+
+         if (this._currentSlide) {
+            var objects = this._currentSlide.objects;
+            // console.log('resizeCanvas(): updating objects', objects);
+            for (var i = 0, len = objects.length; i < len; i++) {
+               this.setCurrentFromDesign(objects[i]);
+            }
+         }
 
          // Adjust the inspector and slide list as well.
          $('#slide-list').height(dimensions.maxHeight);
