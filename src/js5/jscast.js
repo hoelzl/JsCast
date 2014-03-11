@@ -35,7 +35,7 @@ var paths = {
 // The configuration is kept in a variable because IntelliJ does a better job of
 // auto-indenting it this way.
 var requirejsConfig = {
-   baseUrl: '/',
+   baseUrl: '',
    paths:   paths,
    shim:    {
       'jquery':       {
