@@ -432,6 +432,21 @@ export class DrawingService extends EventEmitter {
       });
    }
 
+   deactivateSelection () {
+      var fabricCanvas = this._fabricCanvas;
+
+      var activeGroup = fabricCanvas.getActiveGroup();
+      var activeObject = fabricCanvas.getActiveObject();
+      fabricCanvas.discardActiveGroup();
+      fabricCanvas.discardActiveObject();
+      if (activeGroup) {
+         this.setDesignFromCurrent(activeGroup);
+      }
+      if (activeObject) {
+         this.setDesignFromCurrent(activeObject);
+      }
+   }
+
    drawSlide (slide = this._currentSlide) {
       // console.log('drawContents called');
       this._currentSlide = slide;
@@ -534,32 +549,22 @@ export class DrawingService extends EventEmitter {
 
          this.scale = scale;
 
-         var fabricCanvas = this._fabricCanvas;
          // console.log('Discarding active group and object');
-         var activeGroup = fabricCanvas.getActiveGroup();
-         var activeObject = fabricCanvas.getActiveObject();
-         fabricCanvas.discardActiveGroup();
-         fabricCanvas.discardActiveObject();
-         if (activeGroup) {
-            this.setDesignFromCurrent(activeGroup);
-         }
-         if (activeObject) {
-            this.setDesignFromCurrent(activeObject);
-         }
+         this.deactivateSelection();
          this._designUpdateEnabled = false;
-
          // Set the dimensions of the main drawing area and position it absolutely.
 
          mainCanvas.height = css.height;
+
          mainCanvas.width = css.width;
          var $containerDiv = $(this._containerDiv);
          var $backgroundDiv = $(this._backgroundDiv);
          var $mainCanvas = $(mainCanvas);
          var $mainDiv = $(this._mainDiv);
          $containerDiv.css(css);
-
          // Children of the main canvas have to positioned relative to the
          // canvas, not the page...
+
          css.left = 0;
          css.top = 0;
          $mainCanvas.css(css);
@@ -567,14 +572,15 @@ export class DrawingService extends EventEmitter {
          $mainDiv.css(divCss);
          $mainDiv.css('font-size', this._designFontSize * scale);
 
+         var fabricCanvas = this._fabricCanvas;
          fabricCanvas.setDimensions(css);
 
          if (this._currentSlide) {
             this.setSlideCurrentFromDesign();
          }
-
          // Adjust the inspector and slide list as well.
          $('#slide-list').height(dimensions.maxHeight);
+
          $('#inspector').height(dimensions.maxHeight);
          this._designUpdateEnabled = true;
          this._resizeTick++;

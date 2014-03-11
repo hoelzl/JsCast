@@ -89,11 +89,11 @@ export class SlideService {
       return newSlide;
    }
 
-   duplicateSlide (callback) {
+   duplicateSlide (postCallback) {
       var originalSlide = this.current.slide;
       var newSlide;
       if (originalSlide) {
-         newSlide = originalSlide.duplicate(callback);
+         newSlide = originalSlide.duplicate(postCallback);
       } else {
          newSlide = new Slide('Failed duplicate attempt');
       }

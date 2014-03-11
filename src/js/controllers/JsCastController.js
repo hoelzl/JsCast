@@ -69,6 +69,7 @@ function jsCastController ($scope, config, drawingService, slideService) {
       return slideService.newSlide();
    };
    $scope.duplicateSlide = () => {
+      drawingService.deactivateSelection();
       return slideService.duplicateSlide($scope.safeApply);
    };
    $scope.deleteSlide = () => {
