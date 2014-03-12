@@ -9,10 +9,11 @@ import Slide from 'Slide';
 
 
 export class SlideService {
-   constructor (/* DrawingService */) {
-      // console.log('Creating new SlideService:', DrawingService);
+   constructor ($sce) {
+      console.log('Creating new SlideService:', $sce);
       this._slides = [];
       this._revision = 0;
+      this.$sce = $sce;
       var service = this;
 
       this._current = {
@@ -82,9 +83,9 @@ export class SlideService {
       }
    }
 
-
    newSlide () {
       var newSlide = new Slide();
+      newSlide.textSanitizor = this.$sce.trustAsHtml;
       this.insertAfterSlide(this.current.slide, newSlide);
       return newSlide;
    }

@@ -6,16 +6,31 @@ import EventEmitter from 'EventEmitter';
 
 var currentId = 1;
 
+function defaultText (slideId) {
+   return `<h1>Slide ${slideId}</h1>
+   The slide text can contain <b>any</b> kind of <i>Markup</i>
+   <ul>
+     <li>Even lists</li>
+     <li>With multiple items</li>
+     <li>They could be <span style="color: red;">numbered</span>, too...</li>
+   </ul>
+   (However I still need to update the resizing behavior for headings and other
+    non-paragraph text.)
+   `
+}
+
 export class Slide extends EventEmitter {
    constructor (title = `Slide ${currentId}`,
-                text = `Default text ${currentId}`,
-                thumbnail = `[thumbnail ${currentId}]`, objects = []) {
+                text = defaultText(currentId),
+                thumbnail = `[thumbnail ${currentId}]`,
+                objects = [], textSanitizer = null) {
       super();
       this.title = title;
       this._text = text;
       this.objects = objects;
       this.thumbnail = thumbnail;
       this.id = currentId++;
+      this.textSanitizer = textSanitizer;
    }
 
    toObject () {
@@ -58,6 +73,14 @@ export class Slide extends EventEmitter {
       this.dirty();
    }
 
+   get sanitizedText () {
+      if (this.textSanitizor) {
+         return this.textSanitizor(this._text);
+      } else {
+         return this._text;
+      }
+   }
+
    addObject (obj) {
       this.objects.push(obj);
    }
@@ -71,7 +94,7 @@ export class Slide extends EventEmitter {
       // callback is not invoked for objects for which clone is synchronous.
       var clonedObjects = [];
       var newSlide = new Slide(`Duplicate of ${this.title}`, this.text, this.thumbnail,
-                               clonedObjects);
+                               clonedObjects, this.textSanitizor);
 
       for (var i = 0, len = objects.length; i < len; i++) {
          var newObj = objects[i].clone(c => {
