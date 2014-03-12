@@ -457,14 +457,7 @@ export class DrawingService extends EventEmitter {
       // Clear the canvas
       //noinspection SillyAssignmentJS
       canvas.width = canvas.width;
-      if (div) {
-         var text = slide.text;
-         if (text) {
-            // console.log('drawing text');
-            // TODO: Maybe set HTML from markdown?
-            div.innerText = text;
-         }
-      }
+
       var fabricCanvas = this._fabricCanvas;
       if (fabricCanvas) {
          fabricCanvas.deactivateAll();
@@ -552,11 +545,11 @@ export class DrawingService extends EventEmitter {
          // console.log('Discarding active group and object');
          this.deactivateSelection();
          this._designUpdateEnabled = false;
+
          // Set the dimensions of the main drawing area and position it absolutely.
-
          mainCanvas.height = css.height;
-
          mainCanvas.width = css.width;
+
          var $containerDiv = $(this._containerDiv);
          var $backgroundDiv = $(this._backgroundDiv);
          var $mainCanvas = $(mainCanvas);
@@ -580,8 +573,8 @@ export class DrawingService extends EventEmitter {
          }
          // Adjust the inspector and slide list as well.
          $('#slide-list').height(dimensions.maxHeight);
-
          $('#inspector').height(dimensions.maxHeight);
+
          this._designUpdateEnabled = true;
          this._resizeTick++;
          this.emit('canvas-resized');

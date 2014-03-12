@@ -158,9 +158,9 @@
     </div>
     <div id="container-div" style="position:absolute;">
         <div id="background-div"
-             style="z-index: -1; background-color: white"></div>
-        <div id="main-div" style="z-index: 0;"></div>
-        <canvas id="main-canvas" style="z-index: 1"></canvas>
+             style="z-index: 1; background-color: white"></div>
+        <div id="main-div" style="z-index: 2;">{{current.slide.text}}</div>
+        <canvas id="main-canvas" style="z-index: 3"></canvas>
     </div>
     <div id="inspector"
          data-ng-if="inspector.visible"
